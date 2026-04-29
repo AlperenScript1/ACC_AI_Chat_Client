@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  font-family: system-ui, sans-serif;
+}
+
+html.dark body {
+  background: #050505;
+  color: #e5e5e5;
+}
+
+html:not(.dark) body {
+  background: #f5f5f5;
+  color: #111111;
+}
+
+@keyframes acc-electron-bloom {
+  0% {
+    transform: translate3d(-7px, 0, 0) scale(1);
+    opacity: 1;
+  }
+  33% {
+    transform: translate3d(11px, -30px, 0) scale(3);
+    opacity: 0.8;
+  }
+  66% {
+    transform: translate3d(0px, 10px, 0) scale(6);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-7px, 0, 0) scale(1); 
+    opacity: 1;
+  }
+}
+
+.acc-electron-bloom {
+  position: absolute;
+  inset: -10px -18px;
+  pointer-events: none;
+  border-radius: 9999px;
+  background: radial-gradient(
+    closest-side,
+    rgba(71, 132, 143, 0.55),
+    rgba(71, 132, 143, 0.22) 55%,
+    rgba(71, 132, 143, 0) 72%
+  );
+  filter: blur(14px);
+  animation: acc-electron-bloom 6.5s ease-in-out infinite;
+}
+
+html.dark .acc-electron-bloom {
+  background: radial-gradient(
+    closest-side,
+    rgba(71, 132, 143, 0.45),
+    rgba(71, 132, 143, 0.16) 55%,
+    rgba(71, 132, 143, 0) 72%
+  );
+}
