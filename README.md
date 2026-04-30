@@ -20,15 +20,6 @@ This project does **not** ship API keys and does **not** call provider APIs dire
   - `partition="persist:acc"` (keeps provider sessions/cookies on the machine).
 - **Sync Mode injection**: ACC executes a small script inside each webview to find the chat input, set the message, and trigger send (see `ACC_App/src/renderer/src/lib/syncInjector.ts`).
 
-## Security notes (important)
-
-Publishing this repo as open source is generally fine, but keep these points in mind:
-
-- **Do not commit secrets**: `.env*`, API keys, tokens, signing certificates, update credentials, etc.
-- **Embedded webviews are powerful**: Electron `webview` + `executeJavaScript` can increase risk if you allow arbitrary/untrusted URLs. ACC currently embeds known chat provider domains, but any “custom URL” feature would need strict allowlisting.
-- **Sessions live on-device**: because the partition is persistent, cookies/sessions are stored locally on the user’s machine. Users should protect their OS account.
-- **Auto-update**: the project includes placeholder auto-update config (`ACC_App/dev-app-update.yml`, `ACC_App/electron-builder.yml`). Before shipping real updates, use HTTPS, sign builds appropriately, and host updates securely.
-
 ## Getting started (development)
 
 ### Requirements
