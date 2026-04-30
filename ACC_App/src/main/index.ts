@@ -6,9 +6,7 @@ import Store from 'electron-store'
 
 const WINDOW_BOUNDS = {
   minWidth: 800,
-  minHeight: 600,
-  maxWidth: 1600,
-  maxHeight: 1000
+  minHeight: 600
 } as const
 
 const store = new Store<{ windowBoundsLocked: boolean }>({
@@ -18,7 +16,8 @@ const store = new Store<{ windowBoundsLocked: boolean }>({
 function applyWindowBoundsLock(win: BrowserWindow, locked: boolean): void {
   if (locked) {
     win.setMinimumSize(WINDOW_BOUNDS.minWidth, WINDOW_BOUNDS.minHeight)
-    win.setMaximumSize(WINDOW_BOUNDS.maxWidth, WINDOW_BOUNDS.maxHeight)
+    // No max constraints: user can freely enlarge the window.
+    win.setMaximumSize(0, 0)
     return
   }
 
@@ -40,9 +39,7 @@ function createWindow(): void {
     ...(windowBoundsLocked
       ? {
           minWidth: WINDOW_BOUNDS.minWidth,
-          minHeight: WINDOW_BOUNDS.minHeight,
-          maxWidth: WINDOW_BOUNDS.maxWidth,
-          maxHeight: WINDOW_BOUNDS.maxHeight
+          minHeight: WINDOW_BOUNDS.minHeight
         }
       : {}),
     webPreferences: {

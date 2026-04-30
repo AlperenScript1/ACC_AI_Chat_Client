@@ -82,7 +82,7 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}
       >
         <div className="flex-1 flex items-center gap-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 rounded-lg px-3 py-2">
-          <span className="text-xs text-black/30 dark:text-white/30 shrink-0">Sync</span>
+          <span className="text-xs text-black/30 dark:text-white/30 shrink-0"><span className="text-purple-400">Sync</span></span>
           <input
             value={value}
             onChange={(e) => setValue(e.target.value)}
