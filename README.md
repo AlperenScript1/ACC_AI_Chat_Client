@@ -72,4 +72,4 @@ npm run build:linux
 *   **Liability:** The developer of **ACC** shall not be held responsible for any account suspensions, limitations, data loss, or any other issues resulting from the use of this software.
 
 ## License
-MIT (see `LICENSE`).
+MIT (see `LICENSE`)
