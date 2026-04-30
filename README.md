@@ -59,17 +59,17 @@ npm run build:mac
 # Build for Linux
 npm run build:linux
 ```
-##⚖️ Legal Disclaimer
-This project is an unofficial, open-source tool and is not affiliated with, endorsed by, or associated with OpenAI, Anthropic, Google, Perplexity, or any other AI service provider.
+---
 
-* **Browser-Based Wrapper:** ACC operates as a specialized browser (using Electron webview) that renders the official web interfaces of AI providers. It does not provide direct API access or bypass any subscription requirements.
+## ⚖️ Legal Disclaimer
 
-* **Terms of Service:** Users are responsible for complying with the Terms of Service (ToS) of each individual AI provider. The use of automation features (like Sync Mode) is at the user's own risk.
+> [!IMPORTANT]
+> This project is an **unofficial**, open-source tool and is **not** affiliated with, endorsed by, or associated with OpenAI, Anthropic, Google, Perplexity, or any other AI service provider.
 
-* **Privacy:** ACC does not collect, store, or intercept your login credentials or chat data. All sessions are handled locally on your machine via isolated Electron partitions.
-
-* **Liability:** The developer of ACC is not responsible for any account suspensions, data loss, or other issues resulting from the use of this software.
-
+*   **Browser-Based Wrapper:** **ACC** operates as a specialized browser (using Electron `webview`) that renders the official web interfaces of AI providers. It does **not** provide direct API access, reverse-engineer private APIs, or bypass any subscription requirements.
+*   **Terms of Service:** Users are solely responsible for complying with the **Terms of Service (ToS)** of each individual AI provider. The use of automation features (such as *Sync Mode*) is at the user's own risk.
+*   **Privacy & Security:** **ACC** does **not** collect, store, or intercept your login credentials, personal data, or chat history. All sessions and cookies are handled locally on your machine via isolated Electron partitions.
+*   **Liability:** The developer of **ACC** shall not be held responsible for any account suspensions, limitations, data loss, or any other issues resulting from the use of this software.
 
 ## License
 MIT (see `LICENSE`).
