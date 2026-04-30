@@ -55,14 +55,12 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
 
   const trySend = (): void => {
     if (!value.trim()) return
-    if (syncSelection.length === 0) {
+    if (!canSend) {
       showNoSelectionToast()
       return
     }
-    if (canSend) {
-      onSend(value.trim())
-      setValue('')
-    }
+    onSend(value.trim())
+    setValue('')
   }
 
   if (!mounted) return null
@@ -92,7 +90,7 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
               if (e.key !== 'Enter') return
               trySend()
             }}
-            placeholder={syncSelection.length === 0 ? "Sidebar'dan model seç" : 'Seçili modellere gönder...'}
+            placeholder={!canSend ? "Sidebar'dan model seç" : 'Seçili modellere gönder...'}
             className="bg-transparent flex-1 text-sm outline-none text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/20"
           />
 

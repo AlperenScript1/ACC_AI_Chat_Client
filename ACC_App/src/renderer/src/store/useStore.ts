@@ -8,8 +8,8 @@ export type AddedModel = {
   isFavorite?: boolean
 }
 
-export type ThemeMode = 'dark' | 'light'
-export type AutoCloseMinutes = 7 | 10 | 30
+export type ThemeMode = 'dark' | 'light' //Theme set
+export type AutoCloseMinutes = 7 | 10 | 30 // Auto-close minutes set 
 
 type StoreState = {
   addedModels: AddedModel[]
@@ -110,7 +110,7 @@ export const useStore = create<StoreState>((set) => ({
       const normalModels =
         group === 'normal' ? groupModels : otherModels.filter((m) => m.isFavorite !== true)
 
-      // Keep groups separate: favorites first, then normals.
+      // fav AI Models frist
       const addedModels = [...favoriteModels, ...normalModels]
       return { ...state, addedModels }
     }),
@@ -123,8 +123,15 @@ export const useStore = create<StoreState>((set) => ({
       const nextEnabled = !s.isSyncEnabled
       if (!nextEnabled) return { isSyncEnabled: false }
 
-      if (s.syncSelection.length === 0 && s.activeModelId) {
-        return { isSyncEnabled: true, syncSelection: [s.activeModelId] }
+      const activeId = s.activeModelId
+      const canAutoSelectActive =
+        Boolean(activeId) &&
+        activeId !== 'market' &&
+        s.addedModels.some((m) => m.id === activeId) &&
+        s.mountedModels.includes(activeId!)
+
+      if (s.syncSelection.length === 0 && canAutoSelectActive) {
+        return { isSyncEnabled: true, syncSelection: [activeId!] }
       }
       return { isSyncEnabled: true }
     }),

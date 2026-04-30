@@ -2,8 +2,34 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import Store from 'electron-store'
+
+const WINDOW_BOUNDS = {
+  minWidth: 800,
+  minHeight: 600,
+  maxWidth: 1600,
+  maxHeight: 1000
+} as const
+
+const store = new Store<{ windowBoundsLocked: boolean }>({
+  defaults: { windowBoundsLocked: true }
+})
+
+function applyWindowBoundsLock(win: BrowserWindow, locked: boolean): void {
+  if (locked) {
+    win.setMinimumSize(WINDOW_BOUNDS.minWidth, WINDOW_BOUNDS.minHeight)
+    win.setMaximumSize(WINDOW_BOUNDS.maxWidth, WINDOW_BOUNDS.maxHeight)
+    return
+  }
+
+  // Remove constraints: allow free resize.
+  win.setMinimumSize(0, 0)
+  win.setMaximumSize(0, 0)
+}
 
 function createWindow(): void {
+  const windowBoundsLocked = store.get('windowBoundsLocked')
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -11,6 +37,14 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
+    ...(windowBoundsLocked
+      ? {
+          minWidth: WINDOW_BOUNDS.minWidth,
+          minHeight: WINDOW_BOUNDS.minHeight,
+          maxWidth: WINDOW_BOUNDS.maxWidth,
+          maxHeight: WINDOW_BOUNDS.maxHeight
+        }
+      : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -18,6 +52,9 @@ function createWindow(): void {
       webviewTag: true
     }
   })
+
+  // Ensure correct runtime constraints before window is shown.
+  applyWindowBoundsLock(mainWindow, windowBoundsLocked)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -61,6 +98,18 @@ app.whenReady().then(() => {
 
   ipcMain.on('acc:model-select', (_event, payload) => {
     console.log('[acc:model-select]', payload)
+  })
+
+  ipcMain.handle('acc:get-window-bounds-lock', () => {
+    return store.get('windowBoundsLocked')
+  })
+
+  ipcMain.handle('acc:set-window-bounds-lock', (_event, locked: boolean) => {
+    const next = Boolean(locked)
+    store.set('windowBoundsLocked', next)
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    if (win) applyWindowBoundsLock(win, next)
+    return next
   })
 
   createWindow()
