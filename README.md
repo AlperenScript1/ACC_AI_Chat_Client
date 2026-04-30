@@ -16,7 +16,8 @@ Easily find and switch between your favorite AI providers with the built-in sear
 ### 🛒 Model Market (Store)
 Browse a curated list of AI providers, add them to your dashboard with a single click, and manage your "Market" to keep only the tools you need. You can also reorder them via drag-and-drop to personalize your layout.
 
-[BURAYA STORE VİDEOSUNU SÜRÜKLE]
+<img width="882" height="632" alt="Store   Add AI Model" src="https://github.com/user-attachments/assets/400f062f-4103-4ddd-9f32-f940d7656ee4" />
+
 
 ---
 
@@ -26,7 +27,8 @@ The flagship feature of **ACC**. Write your message once and send it to all acti
 *   **Efficiency:** Compare different AI models side-by-side.
 *   **Automation:** Automatically detects input fields and triggers the "Send" action across providers.
 
-[BURAYA SYNC VİDEOSUNU SÜRÜKLE]
+<img width="888" height="636" alt="Sync" src="https://github.com/user-attachments/assets/983c465f-f71b-4609-aa2f-531355ac6aee" />
+
 
 ---
 
@@ -56,7 +58,6 @@ npm run build:mac
 
 # Build for Linux
 npm run build:linux
-
+```
 ## License
-
 MIT (see `LICENSE`).
