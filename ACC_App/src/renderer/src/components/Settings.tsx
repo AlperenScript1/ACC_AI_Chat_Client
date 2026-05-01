@@ -1,5 +1,5 @@
 import { Settings as SettingsIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { AutoCloseMinutes, ThemeMode } from '../store/useStore'
 import { useStore } from '../store/useStore'
 import { shortcutFromEvent } from '../lib/shortcut'
@@ -285,12 +285,41 @@ export default function Settings(): React.JSX.Element {
 
   const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
+  const closeTimeoutRef = useRef<number | null>(null)
 
-  useEffect(() => {
+  useEffect((): void | (() => void) => {
     if (!isSettingsOpen) {
+      if (!animationsEnabled) {
+        if (closeTimeoutRef.current !== null) {
+          window.clearTimeout(closeTimeoutRef.current)
+          closeTimeoutRef.current = null
+        }
+        setVisible(false)
+        setMounted(false)
+        return
+      }
+
+      // If settings is closed externally (e.g. ESC global handler),
+      // keep it mounted long enough for the exit animation to play.
+      const DURATION_MS = 160
       setVisible(false)
-      setMounted(false)
-      return
+      if (closeTimeoutRef.current !== null) window.clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = window.setTimeout(() => {
+        setMounted(false)
+        closeTimeoutRef.current = null
+      }, DURATION_MS)
+      return () => {
+        if (closeTimeoutRef.current !== null) {
+          window.clearTimeout(closeTimeoutRef.current)
+          closeTimeoutRef.current = null
+        }
+      }
+    }
+
+    // Opening: cancel any pending close unmount
+    if (closeTimeoutRef.current !== null) {
+      window.clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
     }
 
     if (!animationsEnabled) {

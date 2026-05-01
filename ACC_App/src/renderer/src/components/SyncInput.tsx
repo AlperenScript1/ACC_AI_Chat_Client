@@ -82,7 +82,7 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}
       >
         <div className="flex-1 flex items-center gap-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 rounded-lg px-3 py-2">
-          <span className="text-xs text-black/30 dark:text-white/30 shrink-0"><span className="text-purple-400">Sync</span></span>
+          <span className="text-xs text-black/30 dark:text-white/30 shrink-0"><span className="text-purple-400 select-none"><i>Sync</i></span></span>
           <input
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -111,7 +111,7 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
             Gönder
           </button>
         </div>
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0 select-none">
         {selectedModels
           .filter((m) => Boolean(m.icon))
           .map((m) => (
@@ -123,7 +123,7 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
               alt={m.name}
             />
           ))}
-        <span className="text-xs text-white/20 dark:text-white/20 text-black/30 whitespace-nowrap">
+        <span className="text-xs text-white/20 dark:text-white/20 text-black/30 whitespace-nowrap select-none">
           {selectedModels.length} model seçili
         </span>
       </div>

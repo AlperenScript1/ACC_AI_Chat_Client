@@ -68,17 +68,17 @@ export default function CommandPalette({ onClose }: CommandPaletteProps): React.
               }
             }}
             className="bg-transparent flex-1 text-sm text-black dark:text-white outline-none focus-visible:outline-none focus-visible:ring-0 placeholder:text-black/30 dark:placeholder:text-white/20"
-            placeholder="Model ara..."
+            placeholder="Model ara... (Aratmak için modeli tek seferlik açmanız gerekiyor.)"
             autoFocus
           />
         </div>
 
         {/* Results */}
-        <div className="max-h-72 overflow-y-auto py-1">
+        <div className="max-h-72 overflow-y-auto py-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {filtered.length === 0 ? (
             <p className="text-black/20 dark:text-white/20 text-sm text-center py-8">
               Sonuç bulunamadı <br />
-              Eğer ekli AI modeliniz yoksa sol altta bulunan "+"" ile model ekleyebilirsiniz.
+              Eğer ekli AI modeliniz yoksa sol altta bulunan "+" ile model ekleyebilirsiniz.
             </p>
           ) : (
             filtered.map((m, i) => (

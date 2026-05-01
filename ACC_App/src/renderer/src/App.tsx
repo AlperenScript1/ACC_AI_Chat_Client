@@ -15,13 +15,13 @@ function Welcome(): React.JSX.Element {
     <div className="h-full w-full flex flex-col">
       <div className="flex-1 w-full flex items-center justify-center">
         <div className="text-center px-6">
-          <div className="text-xs tracking-widest text-black/50 dark:text-white/40 uppercase">
+          <div className="text-xs tracking-widest text-black/50 dark:text-white/40 uppercase select-none">
             ACC - AI Chat Client 
           </div>
-          <div className="mt-3 text-2xl sm:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-black via-black/70 to-black/40 dark:from-white dark:via-white/80 dark:to-white/40">
+          <div className="mt-3 text-2xl sm:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-black via-black/70 to-black/40 dark:from-white dark:via-white/80 dark:to-white/40 select-none">
             Başlamak için bir model seçin
           </div>
-          <div className="mt-3 text-sm text-black/60 dark:text-white/45">
+          <div className="mt-3 text-sm text-black/60 dark:text-white/45 select-none">
             Soldaki <span className="text-black/80 dark:text-white/70 font-semibold">+</span> ile bir
             model ekleyin.
           </div>
