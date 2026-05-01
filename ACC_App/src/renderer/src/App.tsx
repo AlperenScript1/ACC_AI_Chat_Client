@@ -3,7 +3,9 @@ import CommandPalette from './components/CommandPalette'
 import ModelMarket from './components/ModelMarket'
 import Sidebar from './components/Sidebar'
 import SyncInput from './components/SyncInput'
+import { useGlobalEsc } from './hooks/useGlobalEsc'
 import { buildInjectScript } from './lib/syncInjector'
+import { matchesShortcut } from './lib/shortcut'
 import { useStore } from './store/useStore'
 import pkg from '../../../package.json'
 
@@ -46,6 +48,11 @@ function App(): React.JSX.Element {
   const isSyncEnabled = useStore((s) => s.isSyncEnabled)
   const syncSelection = useStore((s) => s.syncSelection)
   const toggleSync = useStore((s) => s.toggleSync)
+  const isSettingsOpen = useStore((s) => s.isSettingsOpen)
+  const setIsSettingsOpen = useStore((s) => s.setIsSettingsOpen)
+  const homeShortcut = useStore((s) => s.homeShortcut)
+  const setHomeShortcut = useStore((s) => s.setHomeShortcut)
+  const setActiveModelId = useStore((s) => s.setActiveModelId)
   const autoCloseMinutes = useStore((s) => s.autoCloseMinutes)
   const lastActiveAt = useStore((s) => s.lastActiveAt)
   const unmountModel = useStore((s) => s.unmountModel)
@@ -64,6 +71,40 @@ function App(): React.JSX.Element {
   }, [theme])
 
   useEffect(() => {
+    let cleanup: (() => void) | null = null
+    ;(async (): Promise<void> => {
+      try {
+        const settings = await window.api.getSettings()
+        if (settings?.homeHotkey) setHomeShortcut(settings.homeHotkey)
+        if (settings?.theme === 'dark' || settings?.theme === 'light')
+          useStore.setState({ theme: settings.theme })
+        if (typeof settings?.animationsEnabled === 'boolean')
+          useStore.setState({ animationsEnabled: settings.animationsEnabled })
+        if (settings?.searchShortcut) useStore.setState({ searchShortcut: settings.searchShortcut })
+      } catch {
+        // ignore (dev / API unavailable)
+      }
+
+      try {
+        const models = await window.api.getModels()
+        if (Array.isArray(models)) useStore.setState({ addedModels: models as any[] })
+      } catch {
+        // ignore
+      }
+
+      try {
+        cleanup = window.api.onNavigateHome(() => {
+          setPaletteOpen(false)
+          setActiveModelId(null)
+        })
+      } catch {
+        // ignore
+      }
+    })()
+    return () => cleanup?.()
+  }, [setActiveModelId, setHomeShortcut])
+
+  useEffect(() => {
     const handler = (e: KeyboardEvent): void => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'S') {
         e.preventDefault()
@@ -71,13 +112,26 @@ function App(): React.JSX.Element {
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === searchShortcut) {
         e.preventDefault()
         setPaletteOpen((prev) => !prev)
-      } else if (e.key === 'Escape') {
+      } else if (matchesShortcut(e, homeShortcut)) {
+        e.preventDefault()
+        setPaletteOpen(false)
+        setActiveModelId(null)
+      } else if (e.key === 'Escape' && !isSettingsOpen && !isSyncEnabled) {
         setPaletteOpen(false)
       }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [searchShortcut, paletteOpen, toggleSync])
+  }, [searchShortcut, toggleSync, isSettingsOpen, isSyncEnabled, homeShortcut, setActiveModelId])
+
+  useGlobalEsc({
+    isSyncOpen: isSyncEnabled,
+    isSettingsOpen,
+    closeSync: () => {
+      if (isSyncEnabled) toggleSync()
+    },
+    closeSettings: () => setIsSettingsOpen(false)
+  })
 
   useEffect(() => {
     const interval = setInterval(() => {

@@ -91,7 +91,7 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
               trySend()
             }}
             placeholder={!canSend ? "Sidebar'dan model seç" : 'Seçili modellere gönder...'}
-            className="bg-transparent flex-1 text-sm outline-none text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/20"
+            className="bg-transparent flex-1 text-sm outline-none focus-visible:outline-none focus-visible:ring-0 text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/20"
           />
 
           <button

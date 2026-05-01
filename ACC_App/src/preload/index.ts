@@ -1,22 +1,36 @@
-import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from 'electron'
 
-// Custom APIs for renderer
-const api = {}
+// Whitelist of valid IPC channels renderer may invoke
+const INVOKE_CHANNELS = ['get-store-data', 'set-store-data', 'reset-store'] as const
+const SEND_CHANNELS = ['quit-app'] as const
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
+void INVOKE_CHANNELS
+void SEND_CHANNELS
+
+contextBridge.exposeInMainWorld('api', {
+  getStoreData: (key?: string) => ipcRenderer.invoke('get-store-data', key),
+
+  setStoreData: (key: string, value: unknown) => ipcRenderer.invoke('set-store-data', key, value),
+
+  getSettings: () => ipcRenderer.invoke('get-store-data', 'settings'),
+
+  saveSettings: (s: Record<string, unknown>) => ipcRenderer.invoke('set-store-data', 'settings', s),
+
+  getModels: () => ipcRenderer.invoke('get-store-data', 'models'),
+
+  saveModels: (m: unknown[]) => ipcRenderer.invoke('set-store-data', 'models', m),
+
+  getChatHistory: () => ipcRenderer.invoke('get-store-data', 'chatHistory'),
+
+  saveChatHistory: (h: unknown[]) => ipcRenderer.invoke('set-store-data', 'chatHistory', h),
+
+  resetStore: async () => {
+    await ipcRenderer.invoke('reset-store')
+    ipcRenderer.send('quit-app')
+  },
+
+  onNavigateHome: (callback: () => void) => {
+    ipcRenderer.on('navigate-home', callback)
+    return () => ipcRenderer.removeAllListeners('navigate-home')
   }
-} else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
-}
+})

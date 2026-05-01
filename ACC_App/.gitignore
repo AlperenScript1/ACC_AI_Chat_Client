@@ -1,6 +1,29 @@
-node_modules
-dist
-out
+# deps
+node_modules/
+
+# build outputs
+out/
+dist/
+/dist-electron/
+release/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+
+# OS junk
 .DS_Store
+Thumbs.db
+
+# secrets / certs
+*.pem
+*.key
+*.p12
+*.pfx
+
+# misc
 .eslintcache
-*.log*

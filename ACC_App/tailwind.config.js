@@ -2,6 +2,10 @@
 module.exports = {
   darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  theme: { extend: {} },
+  theme: {
+    extend: {
+      ringColor: { DEFAULT: '#3b82f6' }
+    }
+  },
   plugins: []
 }

@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, globalShortcut, session } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -9,9 +9,100 @@ const WINDOW_BOUNDS = {
   minHeight: 600
 } as const
 
-const store = new Store<{ windowBoundsLocked: boolean }>({
-  defaults: { windowBoundsLocked: true }
-})
+// Force Chromium caches into userData to avoid Windows permission/lock issues
+// (especially common in dev + webview partitions)
+try {
+  const userData = app.getPath('userData')
+  app.commandLine.appendSwitch('disk-cache-dir', join(userData, 'DiskCache'))
+  app.commandLine.appendSwitch('gpu-disk-cache-dir', join(userData, 'GpuCache'))
+  app.commandLine.appendSwitch('disable-gpu-shader-disk-cache')
+} catch {
+  // ignore
+}
+
+// --- Store schema & initialization ---
+const schema = {
+  settings: {
+    type: 'object',
+    properties: {
+      language: { type: 'string', default: 'tr' },
+      homeHotkey: { type: 'string', default: 'Ctrl+H' },
+      windowBoundsLocked: { type: 'boolean', default: true },
+      theme: { type: 'string', default: 'dark' },
+      animationsEnabled: { type: 'boolean', default: true },
+      searchShortcut: { type: 'string', default: 'f' }
+    },
+    default: {
+      language: 'tr',
+      homeHotkey: 'Ctrl+H',
+      windowBoundsLocked: true,
+      theme: 'dark',
+      animationsEnabled: true,
+      searchShortcut: 'f'
+    }
+  },
+  models: {
+    type: 'array',
+    default: []
+  },
+  chatHistory: {
+    type: 'array',
+    default: []
+  }
+} as const
+
+let store: Store<any>
+
+const ALLOWED_STORE_KEYS = ['settings', 'models', 'chatHistory'] as const
+type StoreKey = (typeof ALLOWED_STORE_KEYS)[number]
+
+function isAllowedKey(key: unknown): key is StoreKey {
+  return typeof key === 'string' && ALLOWED_STORE_KEYS.includes(key as StoreKey)
+}
+
+// --- Global shortcut registration ---
+let currentAccelerator: string | null = null
+
+const VALID_ACCELERATOR_REGEX =
+  /^(CommandOrControl|Alt|Shift|Command|Control)(\+(CommandOrControl|Alt|Shift|[A-Z0-9]|F[1-9]|F1[0-2]))+$/i
+
+function toAccelerator(hotkey: string): string | null {
+  const acc = hotkey
+    .replace(/ctrl/i, 'CommandOrControl')
+    .replace(/cmd/i, 'CommandOrControl')
+    .replace(/\s/g, '')
+
+  if (!VALID_ACCELERATOR_REGEX.test(acc)) {
+    console.warn('[Shortcut] Invalid accelerator rejected:', acc)
+    return null
+  }
+  return acc
+}
+
+function registerHomeShortcut(win: BrowserWindow, hotkey: string) {
+  if (currentAccelerator) {
+    globalShortcut.unregister(currentAccelerator)
+    currentAccelerator = null
+  }
+
+  const acc = toAccelerator(hotkey)
+  if (!acc) return // silently reject invalid combos
+
+  try {
+    const success = globalShortcut.register(acc, () => {
+      win.webContents.send('navigate-home')
+    })
+    if (!success) {
+      console.warn('[Shortcut] Registration failed (key in use?):', acc)
+      return
+    }
+    currentAccelerator = acc
+  } catch (err) {
+    console.error('[Shortcut] Unexpected error registering shortcut:', err)
+  }
+}
+
+let mainWindow: BrowserWindow | null = null
 
 function applyWindowBoundsLock(win: BrowserWindow, locked: boolean): void {
   if (locked) {
@@ -27,10 +118,11 @@ function applyWindowBoundsLock(win: BrowserWindow, locked: boolean): void {
 }
 
 function createWindow(): void {
-  const windowBoundsLocked = store.get('windowBoundsLocked')
+  const settings = store.get('settings') as { windowBoundsLocked: boolean; homeHotkey: string }
+  const windowBoundsLocked = Boolean(settings?.windowBoundsLocked)
 
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -44,18 +136,32 @@ function createWindow(): void {
       : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
       contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+      webSecurity: true,
+      allowRunningInsecureContent: false,
+      experimentalFeatures: false,
       webviewTag: true
+    }
+  })
+
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    const appURL = is.dev
+      ? process.env['ELECTRON_RENDERER_URL']
+      : `file://${join(__dirname, '../renderer/index.html')}`
+
+    if (!url.startsWith(appURL ?? '')) {
+      event.preventDefault()
+      console.warn('[Security] Blocked navigation to:', url)
     }
   })
 
   // Ensure correct runtime constraints before window is shown.
   applyWindowBoundsLock(mainWindow, windowBoundsLocked)
 
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-  })
+  // Show window only after it is ready to avoid visual flash
+  mainWindow.once('ready-to-show', () => mainWindow?.show())
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
@@ -69,12 +175,56 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  // Load initial hotkey from store and register it
+  const hotkey = (settings?.homeHotkey ?? 'Ctrl+H') as string
+  registerHomeShortcut(mainWindow, hotkey)
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  // Initialize electron-store after app is ready (important on Windows)
+  store = new Store({ schema })
+
+  // Ensure cache lives under userData (avoids Windows permission issues)
+  app.setPath('cache', join(app.getPath('userData'), 'Cache'))
+
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    const csp = is.dev
+      ? [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+          "style-src 'self' 'unsafe-inline'",
+          "img-src 'self' data: https:",
+          "font-src 'self' data:",
+          "connect-src 'self' http://localhost:* ws://localhost:* https:",
+          "object-src 'none'",
+          "frame-src 'none'",
+          "base-uri 'self'"
+        ].join('; ')
+      : [
+          "default-src 'self'",
+          "script-src 'self'",
+          "style-src 'self' 'unsafe-inline'",
+          "img-src 'self' data: https:",
+          "font-src 'self' data:",
+          "connect-src 'self' https:",
+          "object-src 'none'",
+          "frame-src 'none'",
+          "base-uri 'self'",
+          'upgrade-insecure-requests'
+        ].join('; ')
+
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [csp]
+      }
+    })
+  })
+
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
@@ -85,31 +235,93 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
-
-  // ACC IPC base (renderer -> main)
-  ipcMain.on('acc:new-window', (_event, payload) => {
-    console.log('[acc:new-window]', payload)
-  })
-
-  ipcMain.on('acc:model-select', (_event, payload) => {
-    console.log('[acc:model-select]', payload)
-  })
+  // Optional dev-only IPC debug (do not log in production)
+  if (is.dev) {
+    ipcMain.on('ping', () => console.log('pong'))
+    ipcMain.on('acc:new-window', (_event, payload) => {
+      console.log('[acc:new-window]', payload)
+    })
+    ipcMain.on('acc:model-select', (_event, payload) => {
+      console.log('[acc:model-select]', payload)
+    })
+  }
 
   ipcMain.handle('acc:get-window-bounds-lock', () => {
-    return store.get('windowBoundsLocked')
+    const settings = store.get('settings') as { windowBoundsLocked?: boolean }
+    return Boolean(settings?.windowBoundsLocked)
   })
 
   ipcMain.handle('acc:set-window-bounds-lock', (_event, locked: boolean) => {
     const next = Boolean(locked)
-    store.set('windowBoundsLocked', next)
+    const prev = (store.get('settings') as Record<string, unknown> | undefined) ?? {}
+    store.set('settings', { ...prev, windowBoundsLocked: next })
     const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
     if (win) applyWindowBoundsLock(win, next)
     return next
   })
 
+  // --- IPC Handlers (electron-store bridge) ---
+  ipcMain.handle('get-store-data', (_event, key?: string) => {
+    if (key !== undefined && !isAllowedKey(key)) {
+      console.warn('[IPC] Rejected unknown store key:', key)
+      return null
+    }
+    return key ? store.get(key) : store.store
+  })
+
+  ipcMain.handle('set-store-data', (_event, key: string, value: unknown) => {
+    if (!isAllowedKey(key)) {
+      console.warn('[IPC] Rejected write to unknown key:', key)
+      return false
+    }
+    if (value === undefined || value === null) {
+      console.warn('[IPC] Rejected null/undefined value for key:', key)
+      return false
+    }
+    store.set(key, value)
+
+    // Re-register hotkey if settings changed
+    if (key === 'settings' && typeof value === 'object') {
+      const s = value as { homeHotkey?: string; windowBoundsLocked?: boolean }
+      if (typeof s?.windowBoundsLocked === 'boolean') {
+        const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+        if (win) applyWindowBoundsLock(win, s.windowBoundsLocked)
+      }
+      if (s?.homeHotkey && mainWindow) {
+        registerHomeShortcut(mainWindow, s.homeHotkey)
+      }
+    }
+    return true
+  })
+
+  let resetCooldown = false
+  ipcMain.handle('reset-store', () => {
+    if (resetCooldown) {
+      console.warn('[IPC] reset-store called too rapidly, ignored')
+      return false
+    }
+    resetCooldown = true
+    setTimeout(() => {
+      resetCooldown = false
+    }, 5000)
+    store.clear()
+    return true
+  })
+
+  let quitCooldown = false
+  ipcMain.on('quit-app', () => {
+    if (quitCooldown) return
+    quitCooldown = true
+    setTimeout(() => {
+      quitCooldown = false
+    }, 5000)
+    app.quit()
+  })
+
   createWindow()
+
+  // Unregister all shortcuts when app closes
+  app.on('will-quit', () => globalShortcut.unregisterAll())
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

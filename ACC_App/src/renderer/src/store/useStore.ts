@@ -11,11 +11,31 @@ export type AddedModel = {
 export type ThemeMode = 'dark' | 'light' //Theme set
 export type AutoCloseMinutes = 7 | 10 | 30 // Auto-close minutes set 
 
+async function persistSettings(partial: Record<string, unknown>): Promise<void> {
+  try {
+    const prev = (await window.api?.getSettings?.()) as Record<string, unknown> | undefined
+    const next = { ...(prev ?? {}), ...partial }
+    await window.api?.saveSettings?.(next)
+  } catch (e) {
+    console.warn('[renderer] persistSettings failed')
+  }
+}
+
+async function persistModels(models: AddedModel[]): Promise<void> {
+  try {
+    await window.api?.saveModels?.(models as unknown[])
+  } catch (e) {
+    console.warn('[renderer] persistModels failed')
+  }
+}
+
 type StoreState = {
   addedModels: AddedModel[]
   activeModelId: string | null
   theme: ThemeMode
   animationsEnabled: boolean
+  isSettingsOpen: boolean
+  homeShortcut: string
   searchShortcut: string
   isSyncEnabled: boolean
   syncSelection: string[]
@@ -33,6 +53,8 @@ type StoreState = {
   setActiveModelId: (modelId: string | null) => void
   setTheme: (theme: ThemeMode) => void
   setAnimationsEnabled: (enabled: boolean) => void
+  setIsSettingsOpen: (open: boolean) => void
+  setHomeShortcut: (shortcut: string) => void
   setSearchShortcut: (key: string) => void
   toggleSync: () => void
   toggleModelInSync: (id: string) => void
@@ -46,6 +68,8 @@ export const useStore = create<StoreState>((set) => ({
   activeModelId: null,
   theme: 'dark',
   animationsEnabled: true,
+  isSettingsOpen: false,
+  homeShortcut: 'Ctrl+H',
   searchShortcut: 'f',
   isSyncEnabled: false,
   syncSelection: [],
@@ -56,7 +80,6 @@ export const useStore = create<StoreState>((set) => ({
     set((state) => {
       const duplicateByUrl = state.addedModels.some((m) => m.url === model.url)
       if (duplicateByUrl) {
-        console.log('[acc] model already added:', model.url)
         return state
       }
 
@@ -69,6 +92,7 @@ export const useStore = create<StoreState>((set) => ({
         ? state.addedModels.map((m) => (m.id === model.id ? { ...m, ...normalized } : m))
         : [...state.addedModels, normalized]
 
+      void persistModels(addedModels)
       return {
         addedModels,
         activeModelId: normalized.id
@@ -81,14 +105,17 @@ export const useStore = create<StoreState>((set) => ({
       const mountedModels = state.mountedModels.filter((x) => x !== id)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [id]: __, ...lastActiveAt } = state.lastActiveAt
+      void persistModels(addedModels)
       return { addedModels, activeModelId, mountedModels, lastActiveAt }
     }),
   toggleFavorite: (id) =>
-    set((state) => ({
-      addedModels: state.addedModels.map((m) =>
+    set((state) => {
+      const addedModels = state.addedModels.map((m) =>
         m.id === id ? { ...m, isFavorite: !(m.isFavorite ?? false) } : m
       )
-    })),
+      void persistModels(addedModels)
+      return { addedModels }
+    }),
   reorderModelInGroup: ({ activeId, overId, group }) =>
     set((state) => {
       if (activeId === overId) return state
@@ -112,12 +139,27 @@ export const useStore = create<StoreState>((set) => ({
 
       // fav AI Models frist
       const addedModels = [...favoriteModels, ...normalModels]
+      void persistModels(addedModels)
       return { ...state, addedModels }
     }),
   setActiveModelId: (modelId) => set({ activeModelId: modelId }),
-  setTheme: (theme) => set({ theme }),
-  setAnimationsEnabled: (enabled) => set({ animationsEnabled: enabled }),
-  setSearchShortcut: (key) => set({ searchShortcut: key }),
+  setTheme: (theme) => {
+    void persistSettings({ theme })
+    set({ theme })
+  },
+  setAnimationsEnabled: (enabled) => {
+    void persistSettings({ animationsEnabled: enabled })
+    set({ animationsEnabled: enabled })
+  },
+  setIsSettingsOpen: (open) => set({ isSettingsOpen: open }),
+  setHomeShortcut: (shortcut) => {
+    void persistSettings({ homeHotkey: shortcut.trim() })
+    set({ homeShortcut: shortcut.trim() })
+  },
+  setSearchShortcut: (key) => {
+    void persistSettings({ searchShortcut: key })
+    set({ searchShortcut: key })
+  },
   toggleSync: () =>
     set((s) => {
       const nextEnabled = !s.isSyncEnabled

@@ -67,7 +67,7 @@ export default function CommandPalette({ onClose }: CommandPaletteProps): React.
                 onClose()
               }
             }}
-            className="bg-transparent flex-1 text-sm text-black dark:text-white outline-none placeholder:text-black/30 dark:placeholder:text-white/20"
+            className="bg-transparent flex-1 text-sm text-black dark:text-white outline-none focus-visible:outline-none focus-visible:ring-0 placeholder:text-black/30 dark:placeholder:text-white/20"
             placeholder="Model ara..."
             autoFocus
           />

@@ -1,4 +1,4 @@
-import { Plus, Zap, CheckCircle2, Circle } from 'lucide-react'
+import { Plus, Zap, CheckCircle2, Circle, Home } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -154,6 +154,28 @@ export default function Sidebar(): React.JSX.Element {
       }}
       className="w-16 h-screen bg-white dark:bg-[#0f0f0f] border-r border-black/5 dark:border-white/5 flex flex-col items-center py-3 gap-2"
     >
+      <div className="w-full flex flex-col items-center gap-2 shrink-0">
+        <button
+          type="button"
+          onClick={() => setActiveModelId(null)}
+          className={[
+            'h-12 w-12 rounded-full',
+            'bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10',
+            'border border-black/10 dark:border-white/10',
+            'transition',
+            activeModelId === null
+              ? 'ring-2 ring-black/30 dark:ring-white/50 shadow-[0_0_18px_rgba(0,0,0,0.10)] dark:shadow-[0_0_18px_rgba(255,255,255,0.12)]'
+              : ''
+          ].join(' ')}
+          title="Home"
+          aria-label="Home"
+        >
+          <Home className="mx-auto text-black/70 dark:text-white/80" size={18} />
+        </button>
+
+        <div className="w-8 h-px bg-black/10 dark:bg-white/10 my-1 mx-auto shrink-0" />
+      </div>
+
       <div className="w-full flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] flex flex-col items-center gap-2">
         <DndContext
           sensors={sensors}
@@ -184,7 +206,6 @@ export default function Sidebar(): React.JSX.Element {
                 onClick={() => {
                   mountModel(model.id)
                   setActiveModelId(model.id)
-                  window.electron?.ipcRenderer?.send('acc:model-select', { modelId: model.id })
                 }}
                 onToggleSyncSelected={() => toggleModelInSync(model.id)}
                 onContextMenu={(e) => {
@@ -233,7 +254,6 @@ export default function Sidebar(): React.JSX.Element {
                 onClick={() => {
                   mountModel(model.id)
                   setActiveModelId(model.id)
-                  window.electron?.ipcRenderer?.send('acc:model-select', { modelId: model.id })
                 }}
                 onToggleSyncSelected={() => toggleModelInSync(model.id)}
                 onContextMenu={(e) => {
