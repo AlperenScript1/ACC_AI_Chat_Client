@@ -44,16 +44,12 @@ const schema = {
   models: {
     type: 'array',
     default: []
-  },
-  chatHistory: {
-    type: 'array',
-    default: []
   }
 } as const
 
 let store: Store<any>
 
-const ALLOWED_STORE_KEYS = ['settings', 'models', 'chatHistory'] as const
+const ALLOWED_STORE_KEYS = ['settings', 'models'] as const
 type StoreKey = (typeof ALLOWED_STORE_KEYS)[number]
 
 function isAllowedKey(key: unknown): key is StoreKey {

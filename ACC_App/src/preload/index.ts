@@ -20,10 +20,6 @@ contextBridge.exposeInMainWorld('api', {
 
   saveModels: (m: unknown[]) => ipcRenderer.invoke('set-store-data', 'models', m),
 
-  getChatHistory: () => ipcRenderer.invoke('get-store-data', 'chatHistory'),
-
-  saveChatHistory: (h: unknown[]) => ipcRenderer.invoke('set-store-data', 'chatHistory', h),
-
   resetStore: async () => {
     await ipcRenderer.invoke('reset-store')
     ipcRenderer.send('quit-app')

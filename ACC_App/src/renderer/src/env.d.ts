@@ -27,8 +27,6 @@ declare global {
       saveSettings: (s: Record<string, unknown>) => Promise<unknown>
       getModels: () => Promise<unknown>
       saveModels: (m: unknown[]) => Promise<unknown>
-      getChatHistory: () => Promise<unknown>
-      saveChatHistory: (h: unknown[]) => Promise<unknown>
       resetStore: () => Promise<void>
       onNavigateHome: (cb: () => void) => () => void
     }
