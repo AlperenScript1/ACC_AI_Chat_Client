@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import CommandPalette from './components/CommandPalette'
+import { ConfigRecoveryBanner } from './components/ConfigRecoveryBanner'
 import ModelMarket from './components/ModelMarket'
 import Sidebar from './components/Sidebar'
 import SyncInput from './components/SyncInput'
@@ -160,50 +161,55 @@ function App(): React.JSX.Element {
   }
 
   return (
-    <div className="h-screen w-screen bg-[#f5f5f5] text-black dark:bg-[#050505] dark:text-white flex overflow-hidden">
-      <Sidebar />
+    <>
+      <ConfigRecoveryBanner />
 
-      <main className="flex-1 h-screen bg-[#f5f5f5] dark:bg-[#050505] overflow-hidden">
-        <div className="absolute left-20 top-3 z-40 text-[11px] tracking-wide text-black/40 dark:text-white/30 select-none">
-          v{pkg.version} <span className="mx-1">•</span> <span style={{ color: 'red' }}>Pre-Alpha</span>
-        </div>
-        <div className={`relative flex-1 h-screen overflow-hidden ${isSyncEnabled ? 'pb-14' : ''}`}>
-          {activeModelId === 'market' ? <ModelMarket /> : null}
+      <div className="h-screen w-screen bg-[#f5f5f5] text-black dark:bg-[#050505] dark:text-white flex overflow-hidden">
+        <Sidebar />
 
-          <div className={activeModelId === 'market' ? 'hidden' : 'h-full w-full'}>
-            {mountedModels.length === 0 || !activeModelId ? <Welcome /> : null}
-
-            {mountedModels.map((id) => (
-              <div
-                key={id}
-                className="absolute inset-0 transition-opacity duration-150 ease-out"
-                style={{
-                  opacity: activeModelId === id ? 1 : 0,
-                  pointerEvents: activeModelId === id ? 'auto' : 'none'
-                }}
-              >
-                {/* eslint-disable react/no-unknown-property */}
-                {modelsById[id]?.url ? (
-                  <webview
-                    ref={(el) => {
-                      webviewRefs.current[id] = el as unknown as WebviewLike
-                    }}
-                    src={modelsById[id]?.url}
-                    className="w-full h-full"
-                    allowpopups={true}
-                    partition="persist:acc"
-                  />
-                ) : null}
-                {/* eslint-enable react/no-unknown-property */}
-              </div>
-            ))}
+        <main className="flex-1 h-screen bg-[#f5f5f5] dark:bg-[#050505] overflow-hidden">
+          <div className="absolute left-20 top-3 z-40 text-[11px] tracking-wide text-black/40 dark:text-white/30 select-none">
+            v{pkg.version} <span className="mx-1">•</span>{' '}
+            <span style={{ color: 'red' }}>Pre-Alpha</span>
           </div>
-        </div>
-      </main>
+          <div className={`relative flex-1 h-screen overflow-hidden ${isSyncEnabled ? 'pb-14' : ''}`}>
+            {activeModelId === 'market' ? <ModelMarket /> : null}
 
-      {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
-      <SyncInput open={isSyncEnabled} onSend={sendToAllModels} />
-    </div>
+            <div className={activeModelId === 'market' ? 'hidden' : 'h-full w-full'}>
+              {mountedModels.length === 0 || !activeModelId ? <Welcome /> : null}
+
+              {mountedModels.map((id) => (
+                <div
+                  key={id}
+                  className="absolute inset-0 transition-opacity duration-150 ease-out"
+                  style={{
+                    opacity: activeModelId === id ? 1 : 0,
+                    pointerEvents: activeModelId === id ? 'auto' : 'none'
+                  }}
+                >
+                  {/* eslint-disable react/no-unknown-property */}
+                  {modelsById[id]?.url ? (
+                    <webview
+                      ref={(el) => {
+                        webviewRefs.current[id] = el as unknown as WebviewLike
+                      }}
+                      src={modelsById[id]?.url}
+                      className="w-full h-full"
+                      allowpopups={true}
+                      partition="persist:acc"
+                    />
+                  ) : null}
+                  {/* eslint-enable react/no-unknown-property */}
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+
+        {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
+        <SyncInput open={isSyncEnabled} onSend={sendToAllModels} />
+      </div>
+    </>
   )
 }
 

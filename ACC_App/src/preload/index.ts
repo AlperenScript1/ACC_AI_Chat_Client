@@ -12,6 +12,10 @@ contextBridge.exposeInMainWorld('api', {
 
   setStoreData: (key: string, value: unknown) => ipcRenderer.invoke('set-store-data', key, value),
 
+  wasConfigRecreated: () => ipcRenderer.invoke('was-config-recreated'),
+
+  acknowledgeConfigRecreated: () => ipcRenderer.invoke('acknowledge-config-recreated'),
+
   getSettings: () => ipcRenderer.invoke('get-store-data', 'settings'),
 
   saveSettings: (s: Record<string, unknown>) => ipcRenderer.invoke('set-store-data', 'settings', s),

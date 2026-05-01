@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import Store from 'electron-store'
+import fs from 'fs'
 
 const WINDOW_BOUNDS = {
   minWidth: 800,
@@ -55,6 +56,10 @@ type StoreKey = (typeof ALLOWED_STORE_KEYS)[number]
 function isAllowedKey(key: unknown): key is StoreKey {
   return typeof key === 'string' && ALLOWED_STORE_KEYS.includes(key as StoreKey)
 }
+
+// --- Config recovery detection ---
+// electron-store default path: `${app.getPath('userData')}/config.json`
+let configWasRecreated = false
 
 // --- Global shortcut registration ---
 let currentAccelerator: string | null = null
@@ -182,7 +187,25 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Initialize electron-store after app is ready (important on Windows)
-  store = new Store({ schema })
+  const configPath = join(app.getPath('userData'), 'config.json')
+  const configExisted = fs.existsSync(configPath)
+
+  try {
+    store = new Store({ schema })
+    if (!configExisted) {
+      configWasRecreated = true
+      console.warn('[Config] config.json was missing — recreated with defaults')
+    }
+  } catch (err) {
+    console.error('[Config] config.json is corrupt — deleting and recreating:', err)
+    try {
+      fs.unlinkSync(configPath)
+    } catch {
+      // ignore
+    }
+    store = new Store({ schema })
+    configWasRecreated = true
+  }
 
   // Ensure cache lives under userData (avoids Windows permission issues)
   app.setPath('cache', join(app.getPath('userData'), 'Cache'))
@@ -312,6 +335,16 @@ app.whenReady().then(() => {
       quitCooldown = false
     }, 5000)
     app.quit()
+  })
+
+  // --- Config recovery status (shown once per session) ---
+  ipcMain.handle('was-config-recreated', () => {
+    return configWasRecreated
+  })
+
+  ipcMain.handle('acknowledge-config-recreated', () => {
+    configWasRecreated = false
+    return true
   })
 
   createWindow()

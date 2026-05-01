@@ -6,6 +6,8 @@ declare global {
     api: {
       getStoreData: (key?: string) => Promise<unknown>
       setStoreData: (key: string, value: unknown) => Promise<unknown>
+      wasConfigRecreated: () => Promise<boolean>
+      acknowledgeConfigRecreated: () => Promise<boolean>
       getSettings: () => Promise<{
         language: string
         homeHotkey: string
@@ -17,8 +19,6 @@ declare global {
       saveSettings: (s: Record<string, unknown>) => Promise<unknown>
       getModels: () => Promise<unknown>
       saveModels: (m: unknown[]) => Promise<unknown>
-      getChatHistory: () => Promise<unknown>
-      saveChatHistory: (h: unknown[]) => Promise<unknown>
       resetStore: () => Promise<void>
       onNavigateHome: (cb: () => void) => () => void
     }
