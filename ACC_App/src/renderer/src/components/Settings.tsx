@@ -33,7 +33,7 @@ function ResetDataSection(): React.JSX.Element {
       {step === 'confirm' && (
         <div className="mt-3 rounded-md border border-red-500/20 p-3">
           <div className="text-xs text-black/70 dark:text-white/70">
-            Emin misiniz? Tüm ayarlar, modeller ve sohbet geçmişi kalıcı olarak silinecektir.
+           Are you sure? All settings, models, and chat history will be permanently deleted.
           </div>
           <div className="mt-3 flex gap-2">
             <button
@@ -50,14 +50,14 @@ function ResetDataSection(): React.JSX.Element {
                 cursor: 'pointer'
               }}
             >
-              İptal
+              Cancel
             </button>
             <button
               type="button"
               onClick={() => setStep('warning')}
               className="flex-1 px-2 py-2 rounded-md bg-red-600 text-white text-[13px]"
             >
-              Sil
+              Delete
             </button>
           </div>
         </div>
@@ -66,7 +66,7 @@ function ResetDataSection(): React.JSX.Element {
       {step === 'warning' && (
         <div className="mt-3 rounded-md border border-red-500/20 p-3">
           <div className="text-xs text-black/70 dark:text-white/70">
-            Uygulama tüm veriler silindikten sonra kapanacaktır. Devam etmek istiyor musunuz?
+           The application will close after all data has been deleted. Do you want to continue?
           </div>
           <div className="mt-3 flex gap-2">
             <button
@@ -83,14 +83,14 @@ function ResetDataSection(): React.JSX.Element {
                 cursor: 'pointer'
               }}
             >
-              İptal
+              Cancel
             </button>
             <button
               type="button"
               onClick={handleFinalConfirm}
               className="flex-1 px-2 py-2 rounded-md bg-red-600 text-white text-[13px]"
             >
-              Tamam, kapat
+              Yes, Close
             </button>
           </div>
         </div>
