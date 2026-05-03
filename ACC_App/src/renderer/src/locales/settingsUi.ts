@@ -60,6 +60,8 @@ const en: SettingsUiCopy = {
     'If a background model has no interaction for the selected time, it enters sleep mode and its webview is unloaded to free memory. 30 minutes is a good default.',
   sleepOptionLabel: (minutes: number) => {
     switch (minutes) {
+      case -5:
+        return '5 seconds (test)'
       case 10:
         return '10 minutes'
       case 30:
@@ -110,6 +112,8 @@ const tr: SettingsUiCopy = {
     'Belirtilen süre boyunca etkileşim olmazsa model uyku moduna geçer; webview kaldırılarak bellek boşaltılır. Performans için önerilen süre 30 dakikadır.',
   sleepOptionLabel: (minutes: number) => {
     switch (minutes) {
+      case -5:
+        return '5 saniye (test)'
       case 10:
         return '10 dakika'
       case 30:

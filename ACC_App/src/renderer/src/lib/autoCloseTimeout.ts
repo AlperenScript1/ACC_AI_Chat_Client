@@ -1,4 +1,5 @@
-export const AUTO_CLOSE_TIMEOUT_VALUES = [10, 30, 60, 120, 180] as const
+/** Negative entry = seconds for dev/test (e.g. -5 → 5s). Positive = minutes. */
+export const AUTO_CLOSE_TIMEOUT_VALUES = [-5, 10, 30, 60, 120, 180] as const
 
 const ALLOWED = new Set<number>(AUTO_CLOSE_TIMEOUT_VALUES)
 

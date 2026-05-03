@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react'
 import type { Model } from '@renderer/types'
 
+function sleepDelayMs(setting: number): number {
+  if (setting < 0) return Math.abs(setting) * 1000
+  return setting * 60 * 1000
+}
+
 export interface UseModelSleepOptions {
   models: Model[]
   /** Şu an odaktaki model; bu id asla uyku zamanlayıcısına girmez (arka plandakiler uyur). */
@@ -33,7 +38,7 @@ export function useModelSleep({
 
   const scheduleTimer = useCallback(
     (modelId: string) => {
-      if (autoCloseTimeoutMinutes <= 0) return
+      if (autoCloseTimeoutMinutes === 0) return
 
       if (modelId === activeModelId) {
         clearTimer(modelId)
@@ -42,7 +47,7 @@ export function useModelSleep({
 
       clearTimer(modelId)
 
-      const ms = autoCloseTimeoutMinutes * 60 * 1000
+      const ms = sleepDelayMs(autoCloseTimeoutMinutes)
       const t = setTimeout(() => {
         timers.current.delete(modelId)
         onModelSleep(modelId)
@@ -66,13 +71,13 @@ export function useModelSleep({
   )
 
   useEffect(() => {
-    if (autoCloseTimeoutMinutes <= 0) {
+    if (autoCloseTimeoutMinutes === 0) {
       timers.current.forEach((_, id) => clearTimer(id))
       return
     }
 
     const now = Date.now()
-    const ms = autoCloseTimeoutMinutes * 60 * 1000
+    const ms = sleepDelayMs(autoCloseTimeoutMinutes)
 
     models.forEach((model) => {
       if (model.isAsleep) {
