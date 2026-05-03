@@ -31,7 +31,7 @@ const schema = {
       windowBoundsLocked: { type: 'boolean', default: true },
       theme: { type: 'string', default: 'dark' },
       animationsEnabled: { type: 'boolean', default: true },
-      searchShortcut: { type: 'string', default: 'f' },
+      searchShortcut: { type: 'string', default: 'Ctrl+F' },
       /** Minutes until model sleep; 0 = disabled */
       autoCloseTimeout: { type: 'number', default: 30 }
     },
@@ -41,7 +41,7 @@ const schema = {
       windowBoundsLocked: true,
       theme: 'dark',
       animationsEnabled: true,
-      searchShortcut: 'f',
+      searchShortcut: 'Ctrl+F',
       autoCloseTimeout: 30
     }
   },

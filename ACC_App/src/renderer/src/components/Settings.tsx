@@ -2,7 +2,8 @@ import { Settings as SettingsIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { ThemeMode } from '../store/useStore'
 import { useStore } from '../store/useStore'
-import { shortcutFromEvent } from '../lib/shortcut'
+import { AUTO_CLOSE_TIMEOUT_OPTIONS } from '../lib/autoCloseTimeout'
+import { DEFAULT_HOME_SHORTCUT, DEFAULT_SEARCH_SHORTCUT, shortcutFromEvent } from '../lib/shortcut'
 
 function ResetDataSection(): React.JSX.Element {
   const [step, setStep] = useState<'idle' | 'confirm' | 'warning'>('idle')
@@ -25,7 +26,7 @@ function ResetDataSection(): React.JSX.Element {
           onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(239,68,68,0.1)')}
           onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
         >
-          Verileri Sil
+          Delete All Data
         </button>
       )}
 
@@ -105,23 +106,13 @@ function AutoCloseTimeoutSetting({
   value: number
   onChange: (v: number) => void
 }): React.JSX.Element {
-  const options = [
-    { label: 'Devre Dışı', value: 0 },
-    { label: '30 saniye (test)', value: 0.5 },
-    { label: '10 dakika', value: 10 },
-    { label: '20 dakika', value: 20 },
-    { label: '30 dakika', value: 30 },
-    { label: '1 saat', value: 60 },
-    { label: '2 saat', value: 120 }
-  ]
-
   return (
     <div className="flex flex-col gap-2">
       <div>
         <label className="text-xs text-black/40 dark:text-white/40">Otomatik uyku modu</label>
         <p className="mt-1 text-[10px] text-black/35 dark:text-white/35 leading-snug">
           Belirtilen süre boyunca etkileşim olmazsa model uyku moduna geçer; webview kaldırılarak bellek
-          boşaltılır.
+          boşaltılır. Performans için önerilen süre 30 dakikadır.
         </p>
       </div>
       <select
@@ -129,7 +120,7 @@ function AutoCloseTimeoutSetting({
         onChange={(e) => onChange(Number(e.target.value))}
         className="bg-white border border-black/10 text-black/80 text-xs rounded px-3 py-2 dark:bg-[#1a1a1a] dark:border-white/5 dark:text-white/70"
       >
-        {options.map((o) => (
+        {AUTO_CLOSE_TIMEOUT_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>
@@ -264,15 +255,30 @@ function SettingsPanel({
 
       <div className="flex flex-col gap-2">
         <label className="text-xs text-black/40 dark:text-white/40">Arama Kısayolu</label>
-        <select
+        <input
           value={searchShortcut}
-          onChange={(e) => setSearchShortcut(e.target.value)}
+          readOnly
+          onKeyDown={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            const next = shortcutFromEvent(e.nativeEvent)
+            if (!next) return
+            setSearchShortcut(next)
+          }}
           className="bg-white border border-black/10 text-black/80 text-xs rounded px-3 py-2 dark:bg-[#1a1a1a] dark:border-white/5 dark:text-white/70"
-        >
-          <option value="f">Ctrl + F</option>
-          <option value="k">Ctrl + K</option>
-          <option value="p">Ctrl + P</option>
-        </select>
+        />
+        <div className="flex justify-between items-end gap-2">
+          <div className="text-[10px] text-black/35 dark:text-white/35 leading-snug flex-1 min-w-0">
+            Değiştirmek için alana tıklayıp kombinasyonu bas (ör. Ctrl+K, Cmd+Shift+P).
+          </div>
+          <button
+            type="button"
+            onClick={() => setSearchShortcut(DEFAULT_SEARCH_SHORTCUT)}
+            className="shrink-0 text-[10px] font-medium text-red-600 dark:text-red-400 hover:underline"
+          >
+            Resetle
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -286,19 +292,20 @@ function SettingsPanel({
             const next = shortcutFromEvent(e.nativeEvent)
             if (!next) return
             setHomeShortcut(next)
-            ;(async (): Promise<void> => {
-              try {
-                const prev = await window.api.getSettings()
-                await window.api.saveSettings({ ...(prev ?? {}), homeHotkey: next })
-              } catch {
-                // ignore
-              }
-            })()
           }}
           className="bg-white border border-black/10 text-black/80 text-xs rounded px-3 py-2 dark:bg-[#1a1a1a] dark:border-white/5 dark:text-white/70"
         />
-        <div className="text-[10px] text-black/35 dark:text-white/35 leading-snug">
-          Değiştirmek için bu alana tıklayıp istediğin kombinasyonu bas (ör. Ctrl+Shift+H).
+        <div className="flex justify-between items-end gap-2">
+          <div className="text-[10px] text-black/35 dark:text-white/35 leading-snug flex-1 min-w-0">
+            Değiştirmek için alana tıklayıp kombinasyonu bas (ör. Ctrl+Shift+H).
+          </div>
+          <button
+            type="button"
+            onClick={() => setHomeShortcut(DEFAULT_HOME_SHORTCUT)}
+            className="shrink-0 text-[10px] font-medium text-red-600 dark:text-red-400 hover:underline"
+          >
+            Resetle
+          </button>
         </div>
       </div>
 

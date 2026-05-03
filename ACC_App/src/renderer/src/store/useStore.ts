@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { normalizeAutoCloseTimeoutMinutes } from '../lib/autoCloseTimeout'
+import { DEFAULT_HOME_SHORTCUT, DEFAULT_SEARCH_SHORTCUT, parseShortcut } from '../lib/shortcut'
 import type { Model } from '../types'
 import { normalizeModel } from '../types'
 
@@ -32,7 +34,7 @@ type StoreState = {
   searchShortcut: string
   isSyncEnabled: boolean
   syncSelection: string[]
-  /** Minutes; 0 = sleep feature disabled */
+  /** Dakika: 10 | 30 | 60 | 120 | 180 (varsayılan 30) */
   autoCloseTimeout: number
   addModel: (model: Omit<Model, 'lastActive' | 'isAsleep'> & Partial<Pick<Model, 'lastActive' | 'isAsleep'>>) => void
   removeModel: (id: string) => void
@@ -63,8 +65,8 @@ export const useStore = create<StoreState>((set) => ({
   theme: 'dark',
   animationsEnabled: true,
   isSettingsOpen: false,
-  homeShortcut: 'Ctrl+H',
-  searchShortcut: 'f',
+  homeShortcut: DEFAULT_HOME_SHORTCUT,
+  searchShortcut: DEFAULT_SEARCH_SHORTCUT,
   isSyncEnabled: false,
   syncSelection: [],
   autoCloseTimeout: 30,
@@ -149,8 +151,10 @@ export const useStore = create<StoreState>((set) => ({
     set({ homeShortcut: shortcut.trim() })
   },
   setSearchShortcut: (key) => {
-    void persistSettings({ searchShortcut: key })
-    set({ searchShortcut: key })
+    const t = key.trim()
+    const next = parseShortcut(t) ? t : DEFAULT_SEARCH_SHORTCUT
+    void persistSettings({ searchShortcut: next })
+    set({ searchShortcut: next })
   },
   toggleSync: () =>
     set((s) => {
@@ -177,8 +181,9 @@ export const useStore = create<StoreState>((set) => ({
       }
     }),
   setAutoCloseTimeout: (minutes) => {
-    void persistSettings({ autoCloseTimeout: minutes })
-    set({ autoCloseTimeout: minutes })
+    const next = normalizeAutoCloseTimeoutMinutes(minutes)
+    void persistSettings({ autoCloseTimeout: next })
+    set({ autoCloseTimeout: next })
   },
   mountModel: (id) =>
     set((state) => {

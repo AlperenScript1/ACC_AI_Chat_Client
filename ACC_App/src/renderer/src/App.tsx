@@ -7,8 +7,9 @@ import Sidebar from './components/Sidebar'
 import SyncInput from './components/SyncInput'
 import { useModelSleep } from './hooks/useModelSleep'
 import { useGlobalEsc } from './hooks/useGlobalEsc'
+import { normalizeAutoCloseTimeoutMinutes } from './lib/autoCloseTimeout'
 import { buildInjectScript } from './lib/syncInjector'
-import { matchesShortcut } from './lib/shortcut'
+import { matchesShortcut, normalizeStoredSearchShortcut } from './lib/shortcut'
 import { useStore } from './store/useStore'
 import { normalizeModel } from './types'
 import pkg from '../../../package.json'
@@ -94,9 +95,15 @@ function App(): React.JSX.Element {
           useStore.setState({ theme: settings.theme })
         if (typeof settings?.animationsEnabled === 'boolean')
           useStore.setState({ animationsEnabled: settings.animationsEnabled })
-        if (settings?.searchShortcut) useStore.setState({ searchShortcut: settings.searchShortcut })
+        if (typeof settings?.searchShortcut === 'string') {
+          useStore.setState({
+            searchShortcut: normalizeStoredSearchShortcut(settings.searchShortcut)
+          })
+        }
         if (typeof settings?.autoCloseTimeout === 'number') {
-          useStore.setState({ autoCloseTimeout: settings.autoCloseTimeout })
+          useStore.setState({
+            autoCloseTimeout: normalizeAutoCloseTimeoutMinutes(settings.autoCloseTimeout)
+          })
         }
       } catch {
         // ignore (dev / API unavailable)
@@ -141,7 +148,7 @@ function App(): React.JSX.Element {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'S') {
         e.preventDefault()
         toggleSync()
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === searchShortcut) {
+      } else if (matchesShortcut(e, searchShortcut)) {
         e.preventDefault()
         setPaletteOpen((prev) => !prev)
       } else if (matchesShortcut(e, homeShortcut)) {

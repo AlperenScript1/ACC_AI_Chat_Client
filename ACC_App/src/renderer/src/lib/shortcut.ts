@@ -19,6 +19,12 @@ function normalizeKeyToken(token: string): string {
   return token.trim()
 }
 
+/** Varsayılan arama paleti kısayolu (şema / reset ile uyumlu) */
+export const DEFAULT_SEARCH_SHORTCUT = 'Ctrl+F'
+
+/** Varsayılan home / ana ekran kısayolu (şema / reset ile uyumlu) */
+export const DEFAULT_HOME_SHORTCUT = 'Ctrl+H'
+
 export function parseShortcut(input: string): ParsedShortcut | null {
   const raw = input.trim()
   if (!raw) return null
@@ -45,6 +51,17 @@ export function parseShortcut(input: string): ParsedShortcut | null {
 
   if (!key) return null
   return { ctrl, meta, shift, alt, key: key.toLowerCase() }
+}
+
+/** Eski tek tuş (`f`) veya tam kombinasyon; geçersizse varsayılan. */
+export function normalizeStoredSearchShortcut(raw: unknown): string {
+  if (typeof raw !== 'string') return DEFAULT_SEARCH_SHORTCUT
+  const t = raw.trim()
+  if (!t) return DEFAULT_SEARCH_SHORTCUT
+  if (/^[a-z0-9]$/i.test(t)) {
+    return `Ctrl+${t.toUpperCase()}`
+  }
+  return parseShortcut(t) ? t : DEFAULT_SEARCH_SHORTCUT
 }
 
 export function shortcutFromEvent(e: KeyboardEvent): string | null {
