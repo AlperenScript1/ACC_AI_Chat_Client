@@ -33,7 +33,9 @@ const schema = {
       animationsEnabled: { type: 'boolean', default: true },
       searchShortcut: { type: 'string', default: 'Ctrl+F' },
       /** Minutes until model sleep; 0 = disabled */
-      autoCloseTimeout: { type: 'number', default: 30 }
+      autoCloseTimeout: { type: 'number', default: 30 },
+      /** Settings panel UI: en | tr (more later) */
+      settingsUiLocale: { type: 'string', default: 'en' }
     },
     default: {
       language: 'tr',
@@ -42,7 +44,8 @@ const schema = {
       theme: 'dark',
       animationsEnabled: true,
       searchShortcut: 'Ctrl+F',
-      autoCloseTimeout: 30
+      autoCloseTimeout: 30,
+      settingsUiLocale: 'en'
     }
   },
   models: {

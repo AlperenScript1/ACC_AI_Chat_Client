@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { normalizeAutoCloseTimeoutMinutes } from '../lib/autoCloseTimeout'
+import { isSettingsUiLocale, type SettingsUiLocale } from '../locales/settingsUi'
 import { DEFAULT_HOME_SHORTCUT, DEFAULT_SEARCH_SHORTCUT, parseShortcut } from '../lib/shortcut'
 import type { Model } from '../types'
 import { normalizeModel } from '../types'
@@ -36,6 +37,8 @@ type StoreState = {
   syncSelection: string[]
   /** Dakika: 10 | 30 | 60 | 120 | 180 (varsayılan 30) */
   autoCloseTimeout: number
+  /** Settings panel copy (persisted; wire UI picker later). */
+  settingsUiLocale: SettingsUiLocale
   addModel: (model: Omit<Model, 'lastActive' | 'isAsleep'> & Partial<Pick<Model, 'lastActive' | 'isAsleep'>>) => void
   removeModel: (id: string) => void
   toggleFavorite: (id: string) => void
@@ -53,6 +56,7 @@ type StoreState = {
   toggleSync: () => void
   toggleModelInSync: (id: string) => void
   setAutoCloseTimeout: (minutes: number) => void
+  setSettingsUiLocale: (locale: SettingsUiLocale) => void
   /** Wake + bump lastActive; used when opening a model from sidebar / market */
   mountModel: (id: string) => void
   applyModelsUpdate: (models: Model[]) => void
@@ -70,6 +74,7 @@ export const useStore = create<StoreState>((set) => ({
   isSyncEnabled: false,
   syncSelection: [],
   autoCloseTimeout: 30,
+  settingsUiLocale: 'en',
   addModel: (model) =>
     set((state) => {
       const duplicateByUrl = state.addedModels.some((m) => m.url === model.url)
@@ -185,6 +190,11 @@ export const useStore = create<StoreState>((set) => ({
     void persistSettings({ autoCloseTimeout: next })
     set({ autoCloseTimeout: next })
   },
+  setSettingsUiLocale: (locale) => {
+    const next = isSettingsUiLocale(locale) ? locale : 'en'
+    void persistSettings({ settingsUiLocale: next })
+    set({ settingsUiLocale: next })
+  },
   mountModel: (id) =>
     set((state) => {
       const addedModels = state.addedModels.map((m) =>
@@ -216,3 +226,5 @@ export function selectActiveModel(
 
 /** @deprecated use Model from '../types' */
 export type AddedModel = Model
+
+export type { SettingsUiLocale } from '../locales/settingsUi'

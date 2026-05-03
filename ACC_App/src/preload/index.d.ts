@@ -16,6 +16,7 @@ declare global {
         animationsEnabled?: boolean
         searchShortcut?: string
         autoCloseTimeout?: number
+        settingsUiLocale?: string
       }>
       saveSettings: (s: Record<string, unknown>) => Promise<unknown>
       getModels: () => Promise<unknown>

@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar'
 import SyncInput from './components/SyncInput'
 import { useModelSleep } from './hooks/useModelSleep'
 import { useGlobalEsc } from './hooks/useGlobalEsc'
+import { isSettingsUiLocale } from './locales/settingsUi'
 import { normalizeAutoCloseTimeoutMinutes } from './lib/autoCloseTimeout'
 import { buildInjectScript } from './lib/syncInjector'
 import { matchesShortcut, normalizeStoredSearchShortcut } from './lib/shortcut'
@@ -104,6 +105,9 @@ function App(): React.JSX.Element {
           useStore.setState({
             autoCloseTimeout: normalizeAutoCloseTimeoutMinutes(settings.autoCloseTimeout)
           })
+        }
+        if (isSettingsUiLocale(settings?.settingsUiLocale)) {
+          useStore.setState({ settingsUiLocale: settings.settingsUiLocale })
         }
       } catch {
         // ignore (dev / API unavailable)
