@@ -177,6 +177,7 @@ function ModelCard({
 export default function ModelMarket(): React.JSX.Element {
   const models = useStore((s) => s.addedModels)
   const addModel = useStore((s) => s.addModel)
+  const mountModel = useStore((s) => s.mountModel)
   const setActiveModelId = useStore((s) => s.setActiveModelId)
 
   const [query, setQuery] = useState('')
@@ -244,9 +245,14 @@ export default function ModelMarket(): React.JSX.Element {
                 }
               }}
               onOpen={() => {
-                if (!isAdded(item)) {
-                  addModel({ id: item.id, name: item.name, url: item.url, icon: item.icon })
+                const existing = models.find((m) => m.url === item.url)
+                if (existing) {
+                  mountModel(existing.id)
+                  setActiveModelId(existing.id)
+                  return
                 }
+                addModel({ id: item.id, name: item.name, url: item.url, icon: item.icon })
+                mountModel(item.id)
                 setActiveModelId(item.id)
               }}
             />

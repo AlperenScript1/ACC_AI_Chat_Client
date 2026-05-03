@@ -329,7 +329,11 @@ export default function Settings(): React.JSX.Element {
     }
 
     setMounted(true)
-    requestAnimationFrame(() => setVisible(true))
+    // Ensure at least one paint occurs before toggling visible,
+    // otherwise the opening transition may be skipped on some systems.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setVisible(true))
+    })
   }, [isSettingsOpen, animationsEnabled])
 
   const openPanel = (): void => {
@@ -337,15 +341,8 @@ export default function Settings(): React.JSX.Element {
   }
 
   const closePanel = (): void => {
-    if (!animationsEnabled) {
-      setIsSettingsOpen(false)
-      return
-    }
-
-    const DURATION_MS = 160
-    setVisible(false)
-    window.setTimeout(() => setMounted(false), DURATION_MS)
-    window.setTimeout(() => setIsSettingsOpen(false), DURATION_MS)
+    // Close via store; the effect above handles unmount timing for exit animation.
+    setIsSettingsOpen(false)
   }
 
   return (
