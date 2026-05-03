@@ -1,36 +1,29 @@
 import { create } from 'zustand'
+import type { Model } from '../types'
+import { normalizeModel } from '../types'
 
-export type AddedModel = {
-  id: string
-  name: string
-  url: string
-  icon?: string
-  isFavorite?: boolean
-}
-
-export type ThemeMode = 'dark' | 'light' //Theme set
-export type AutoCloseMinutes = 7 | 10 | 30 // Auto-close minutes set 
+export type ThemeMode = 'dark' | 'light'
 
 async function persistSettings(partial: Record<string, unknown>): Promise<void> {
   try {
     const prev = (await window.api?.getSettings?.()) as Record<string, unknown> | undefined
     const next = { ...(prev ?? {}), ...partial }
     await window.api?.saveSettings?.(next)
-  } catch (e) {
+  } catch {
     console.warn('[renderer] persistSettings failed')
   }
 }
 
-async function persistModels(models: AddedModel[]): Promise<void> {
+async function persistModels(models: Model[]): Promise<void> {
   try {
     await window.api?.saveModels?.(models as unknown[])
-  } catch (e) {
+  } catch {
     console.warn('[renderer] persistModels failed')
   }
 }
 
 type StoreState = {
-  addedModels: AddedModel[]
+  addedModels: Model[]
   activeModelId: string | null
   theme: ThemeMode
   animationsEnabled: boolean
@@ -39,10 +32,9 @@ type StoreState = {
   searchShortcut: string
   isSyncEnabled: boolean
   syncSelection: string[]
-  autoCloseMinutes: AutoCloseMinutes
-  mountedModels: string[]
-  lastActiveAt: Record<string, number>
-  addModel: (model: AddedModel) => void
+  /** Minutes; 0 = sleep feature disabled */
+  autoCloseTimeout: number
+  addModel: (model: Omit<Model, 'lastActive' | 'isAsleep'> & Partial<Pick<Model, 'lastActive' | 'isAsleep'>>) => void
   removeModel: (id: string) => void
   toggleFavorite: (id: string) => void
   reorderModelInGroup: (params: {
@@ -58,9 +50,11 @@ type StoreState = {
   setSearchShortcut: (key: string) => void
   toggleSync: () => void
   toggleModelInSync: (id: string) => void
-  setAutoCloseMinutes: (minutes: AutoCloseMinutes) => void
+  setAutoCloseTimeout: (minutes: number) => void
+  /** Wake + bump lastActive; used when opening a model from sidebar / market */
   mountModel: (id: string) => void
-  unmountModel: (id: string) => void
+  applyModelsUpdate: (models: Model[]) => void
+  markModelAsleep: (id: string) => void
 }
 
 export const useStore = create<StoreState>((set) => ({
@@ -73,9 +67,7 @@ export const useStore = create<StoreState>((set) => ({
   searchShortcut: 'f',
   isSyncEnabled: false,
   syncSelection: [],
-  autoCloseMinutes: 10,
-  mountedModels: [],
-  lastActiveAt: {},
+  autoCloseTimeout: 30,
   addModel: (model) =>
     set((state) => {
       const duplicateByUrl = state.addedModels.some((m) => m.url === model.url)
@@ -83,13 +75,17 @@ export const useStore = create<StoreState>((set) => ({
         return state
       }
 
-      const normalized: AddedModel = {
+      const normalized = normalizeModel({
         ...model,
-        isFavorite: model.isFavorite ?? false
-      }
-      const exists = state.addedModels.some((m) => m.id === model.id)
+        isFavorite: model.isFavorite ?? false,
+        lastActive: model.lastActive ?? Date.now(),
+        isAsleep: model.isAsleep ?? false
+      })
+      const exists = state.addedModels.some((m) => m.id === normalized.id)
       const addedModels = exists
-        ? state.addedModels.map((m) => (m.id === model.id ? { ...m, ...normalized } : m))
+        ? state.addedModels.map((m) =>
+            m.id === normalized.id ? normalizeModel({ ...m, ...model }) : m
+          )
         : [...state.addedModels, normalized]
 
       void persistModels(addedModels)
@@ -102,11 +98,8 @@ export const useStore = create<StoreState>((set) => ({
     set((state) => {
       const addedModels = state.addedModels.filter((m) => m.id !== id)
       const activeModelId = state.activeModelId === id ? null : state.activeModelId
-      const mountedModels = state.mountedModels.filter((x) => x !== id)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [id]: __, ...lastActiveAt } = state.lastActiveAt
       void persistModels(addedModels)
-      return { addedModels, activeModelId, mountedModels, lastActiveAt }
+      return { addedModels, activeModelId }
     }),
   toggleFavorite: (id) =>
     set((state) => {
@@ -119,7 +112,7 @@ export const useStore = create<StoreState>((set) => ({
   reorderModelInGroup: ({ activeId, overId, group }) =>
     set((state) => {
       if (activeId === overId) return state
-      const isInGroup = (m: AddedModel): boolean =>
+      const isInGroup = (m: Model): boolean =>
         group === 'favorite' ? m.isFavorite === true : m.isFavorite !== true
 
       const groupModels = state.addedModels.filter(isInGroup)
@@ -137,7 +130,6 @@ export const useStore = create<StoreState>((set) => ({
       const normalModels =
         group === 'normal' ? groupModels : otherModels.filter((m) => m.isFavorite !== true)
 
-      // fav AI Models frist
       const addedModels = [...favoriteModels, ...normalModels]
       void persistModels(addedModels)
       return { ...state, addedModels }
@@ -170,7 +162,7 @@ export const useStore = create<StoreState>((set) => ({
         Boolean(activeId) &&
         activeId !== 'market' &&
         s.addedModels.some((m) => m.id === activeId) &&
-        s.mountedModels.includes(activeId!)
+        s.addedModels.some((m) => m.id === activeId && !m.isAsleep)
 
       if (s.syncSelection.length === 0 && canAutoSelectActive) {
         return { isSyncEnabled: true, syncSelection: [activeId!] }
@@ -184,28 +176,38 @@ export const useStore = create<StoreState>((set) => ({
         syncSelection: exists ? s.syncSelection.filter((x) => x !== id) : [...s.syncSelection, id]
       }
     }),
-  setAutoCloseMinutes: (minutes) => set({ autoCloseMinutes: minutes }),
+  setAutoCloseTimeout: (minutes) => {
+    void persistSettings({ autoCloseTimeout: minutes })
+    set({ autoCloseTimeout: minutes })
+  },
   mountModel: (id) =>
-    set((state) => ({
-      mountedModels: state.mountedModels.includes(id)
-        ? state.mountedModels
-        : [...state.mountedModels, id],
-      lastActiveAt: { ...state.lastActiveAt, [id]: Date.now() }
-    })),
-  unmountModel: (id) =>
     set((state) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [id]: __, ...rest } = state.lastActiveAt
-      return {
-        mountedModels: state.mountedModels.filter((x) => x !== id),
-        lastActiveAt: rest
-      }
+      const addedModels = state.addedModels.map((m) =>
+        m.id === id ? { ...m, isAsleep: false, lastActive: Date.now() } : m
+      )
+      void persistModels(addedModels)
+      return { addedModels }
+    }),
+  applyModelsUpdate: (models) => {
+    void persistModels(models)
+    set({ addedModels: models })
+  },
+  markModelAsleep: (id) =>
+    set((state) => {
+      const addedModels = state.addedModels.map((m) =>
+        m.id === id ? { ...m, isAsleep: true } : m
+      )
+      void persistModels(addedModels)
+      return { addedModels }
     })
 }))
 
 export function selectActiveModel(
   state: Pick<StoreState, 'addedModels' | 'activeModelId'>
-): AddedModel | null {
+): Model | null {
   if (!state.activeModelId) return null
   return state.addedModels.find((m) => m.id === state.activeModelId) ?? null
 }
+
+/** @deprecated use Model from '../types' */
+export type AddedModel = Model

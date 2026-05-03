@@ -37,6 +37,7 @@ function SortableModelItem({
   name,
   icon,
   isActive,
+  isAsleep,
   isSyncEnabled,
   isSyncSelected,
   onClick,
@@ -47,6 +48,7 @@ function SortableModelItem({
   name: string
   icon?: string
   isActive: boolean
+  isAsleep: boolean
   isSyncEnabled: boolean
   isSyncSelected: boolean
   onClick: () => void
@@ -63,7 +65,7 @@ function SortableModelItem({
     <div ref={setNodeRef} style={style}>
       <button
         type="button"
-        title={name}
+        title={isAsleep ? `${name} (Uyku Modu)` : name}
         onClick={onClick}
         onContextMenu={onContextMenu}
         className={[
@@ -71,6 +73,7 @@ function SortableModelItem({
           'bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15',
           'border border-black/10 dark:border-white/10',
           'transition',
+          isAsleep ? 'opacity-60 hover:opacity-100' : '',
           isActive
             ? 'ring-2 ring-black/30 dark:ring-white/50 shadow-[0_0_18px_rgba(0,0,0,0.10)] dark:shadow-[0_0_18px_rgba(255,255,255,0.12)]'
             : '',
@@ -83,6 +86,14 @@ function SortableModelItem({
       >
         <div className="relative flex items-center justify-center">
           <SidebarModelIcon name={name} icon={icon} />
+          {isAsleep && (
+            <span
+              className="absolute -bottom-0.5 -right-0.5 z-[5] text-[10px] leading-none select-none"
+              aria-hidden
+            >
+              🌙
+            </span>
+          )}
           {isSyncEnabled && (
             <button
               type="button"
@@ -201,6 +212,7 @@ export default function Sidebar(): React.JSX.Element {
                 name={model.name}
                 icon={model.icon}
                 isActive={model.id === activeModelId}
+                isAsleep={model.isAsleep}
                 isSyncEnabled={isSyncEnabled}
                 isSyncSelected={syncSelection.includes(model.id)}
                 onClick={() => {
@@ -249,6 +261,7 @@ export default function Sidebar(): React.JSX.Element {
                 name={model.name}
                 icon={model.icon}
                 isActive={model.id === activeModelId}
+                isAsleep={model.isAsleep}
                 isSyncEnabled={isSyncEnabled}
                 isSyncSelected={syncSelection.includes(model.id)}
                 onClick={() => {

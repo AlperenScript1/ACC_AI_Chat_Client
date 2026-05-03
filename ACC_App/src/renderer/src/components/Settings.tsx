@@ -1,13 +1,13 @@
 import { Settings as SettingsIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import type { AutoCloseMinutes, ThemeMode } from '../store/useStore'
+import type { ThemeMode } from '../store/useStore'
 import { useStore } from '../store/useStore'
 import { shortcutFromEvent } from '../lib/shortcut'
 
 function ResetDataSection(): React.JSX.Element {
   const [step, setStep] = useState<'idle' | 'confirm' | 'warning'>('idle')
 
-  const handleFinalConfirm = async () => {
+  const handleFinalConfirm = async (): Promise<void> => {
     await window.api.resetStore()
   }
 
@@ -98,6 +98,47 @@ function ResetDataSection(): React.JSX.Element {
   )
 }
 
+function AutoCloseTimeoutSetting({
+  value,
+  onChange
+}: {
+  value: number
+  onChange: (v: number) => void
+}): React.JSX.Element {
+  const options = [
+    { label: 'Devre Dışı', value: 0 },
+    { label: '30 saniye (test)', value: 0.5 },
+    { label: '10 dakika', value: 10 },
+    { label: '20 dakika', value: 20 },
+    { label: '30 dakika', value: 30 },
+    { label: '1 saat', value: 60 },
+    { label: '2 saat', value: 120 }
+  ]
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div>
+        <label className="text-xs text-black/40 dark:text-white/40">Otomatik uyku modu</label>
+        <p className="mt-1 text-[10px] text-black/35 dark:text-white/35 leading-snug">
+          Belirtilen süre boyunca etkileşim olmazsa model uyku moduna geçer; webview kaldırılarak bellek
+          boşaltılır.
+        </p>
+      </div>
+      <select
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="bg-white border border-black/10 text-black/80 text-xs rounded px-3 py-2 dark:bg-[#1a1a1a] dark:border-white/5 dark:text-white/70"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
 function SettingsPanel({
   visible,
   animationsEnabled,
@@ -108,11 +149,11 @@ function SettingsPanel({
   onClose: () => void
 }): React.JSX.Element {
   const theme = useStore((s) => s.theme)
-  const autoCloseMinutes = useStore((s) => s.autoCloseMinutes)
+  const autoCloseTimeout = useStore((s) => s.autoCloseTimeout)
   const searchShortcut = useStore((s) => s.searchShortcut)
   const setTheme = useStore((s) => s.setTheme)
   const setAnimationsEnabled = useStore((s) => s.setAnimationsEnabled)
-  const setAutoCloseMinutes = useStore((s) => s.setAutoCloseMinutes)
+  const setAutoCloseTimeout = useStore((s) => s.setAutoCloseTimeout)
   const setSearchShortcut = useStore((s) => s.setSearchShortcut)
   const homeShortcut = useStore((s) => s.homeShortcut)
   const setHomeShortcut = useStore((s) => s.setHomeShortcut)
@@ -219,19 +260,7 @@ function SettingsPanel({
         </div>
       </div>
 
-      {/* Auto-close */}
-      <div className="flex flex-col gap-2">
-        <label className="text-xs text-black/40 dark:text-white/40">Otomatik Kapanma</label>
-        <select
-          value={autoCloseMinutes}
-          onChange={(e) => setAutoCloseMinutes(Number(e.target.value) as AutoCloseMinutes)}
-          className="bg-white border border-black/10 text-black/80 text-xs rounded px-3 py-2 dark:bg-[#1a1a1a] dark:border-white/5 dark:text-white/70"
-        >
-          <option value={7}>7 dakika</option>
-          <option value={10}>10 dakika</option>
-          <option value={30}>30 dakika</option>
-        </select>
-      </div>
+      <AutoCloseTimeoutSetting value={autoCloseTimeout} onChange={setAutoCloseTimeout} />
 
       <div className="flex flex-col gap-2">
         <label className="text-xs text-black/40 dark:text-white/40">Arama Kısayolu</label>

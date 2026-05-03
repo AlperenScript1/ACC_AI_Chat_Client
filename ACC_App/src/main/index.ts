@@ -31,7 +31,9 @@ const schema = {
       windowBoundsLocked: { type: 'boolean', default: true },
       theme: { type: 'string', default: 'dark' },
       animationsEnabled: { type: 'boolean', default: true },
-      searchShortcut: { type: 'string', default: 'f' }
+      searchShortcut: { type: 'string', default: 'f' },
+      /** Minutes until model sleep; 0 = disabled */
+      autoCloseTimeout: { type: 'number', default: 30 }
     },
     default: {
       language: 'tr',
@@ -39,10 +41,27 @@ const schema = {
       windowBoundsLocked: true,
       theme: 'dark',
       animationsEnabled: true,
-      searchShortcut: 'f'
+      searchShortcut: 'f',
+      autoCloseTimeout: 30
     }
   },
   models: {
+    type: 'array',
+    default: [],
+    items: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        url: { type: 'string' },
+        icon: { type: 'string' },
+        isFavorite: { type: 'boolean', default: false },
+        lastActive: { type: 'number', default: 0 },
+        isAsleep: { type: 'boolean', default: false }
+      }
+    }
+  },
+  chatHistory: {
     type: 'array',
     default: []
   }
@@ -50,7 +69,7 @@ const schema = {
 
 let store: Store<any>
 
-const ALLOWED_STORE_KEYS = ['settings', 'models'] as const
+const ALLOWED_STORE_KEYS = ['settings', 'models', 'chatHistory'] as const
 type StoreKey = (typeof ALLOWED_STORE_KEYS)[number]
 
 function isAllowedKey(key: unknown): key is StoreKey {

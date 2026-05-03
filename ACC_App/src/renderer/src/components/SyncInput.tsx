@@ -14,10 +14,9 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
   const animationsEnabled = useStore((s) => s.animationsEnabled)
   const syncSelection = useStore((s) => s.syncSelection)
   const models = useStore((s) => s.addedModels)
-  const mountedModels = useStore((s) => s.mountedModels)
 
   const selectedModels = models.filter((m) => syncSelection.includes(m.id))
-  const canSend = syncSelection.length > 0 && mountedModels.some((id) => syncSelection.includes(id))
+  const canSend = syncSelection.some((id) => models.some((m) => m.id === id && !m.isAsleep))
 
   useEffect(() => {
     if (!toastOpen) return

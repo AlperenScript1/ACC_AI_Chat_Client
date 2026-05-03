@@ -10,7 +10,7 @@ export default function CommandPalette({ onClose }: CommandPaletteProps): React.
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const models = useStore((s) => s.addedModels)
-  const mountedModels = useStore((s) => s.mountedModels)
+  const mountModel = useStore((s) => s.mountModel)
   const setActiveModelId = useStore((s) => s.setActiveModelId)
 
   const [query, setQuery] = useState('')
@@ -18,16 +18,15 @@ export default function CommandPalette({ onClose }: CommandPaletteProps): React.
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
-    return models
-      .filter((m) => mountedModels.includes(m.id))
-      .filter((m) => m.name.toLowerCase().includes(q))
-  }, [models, mountedModels, query])
+    return models.filter((m) => m.name.toLowerCase().includes(q))
+  }, [models, query])
 
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
 
   const selectModel = (id: string): void => {
+    mountModel(id)
     setActiveModelId(id)
     onClose()
   }
@@ -68,7 +67,7 @@ export default function CommandPalette({ onClose }: CommandPaletteProps): React.
               }
             }}
             className="bg-transparent flex-1 text-sm text-black dark:text-white outline-none focus-visible:outline-none focus-visible:ring-0 placeholder:text-black/30 dark:placeholder:text-white/20"
-            placeholder="Model ara... (Aratmak için modeli tek seferlik açmanız gerekiyor.)"
+            placeholder="Model ara… (Uyku modundaki model seçildiğinde uyanır.)"
             autoFocus
           />
         </div>
@@ -94,7 +93,7 @@ export default function CommandPalette({ onClose }: CommandPaletteProps): React.
                 onClick={() => selectModel(m.id)} 
               >
                 <img src={m.icon} className="w-6 h-6 rounded-md object-cover" alt={m.name} />
-                <span>{m.name}</span> 
+                <span>{m.name}</span>
               </div>
             ))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
           )}
