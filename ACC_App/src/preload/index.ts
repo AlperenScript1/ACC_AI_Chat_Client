@@ -24,6 +24,15 @@ contextBridge.exposeInMainWorld('api', {
 
   saveModels: (m: unknown[]) => ipcRenderer.invoke('set-store-data', 'models', m),
 
+  getNotes: () => ipcRenderer.invoke('get-store-data', 'notes'),
+
+  saveNotes: (notes: unknown[]) => ipcRenderer.invoke('set-store-data', 'notes', notes),
+
+  getNoteCategories: () => ipcRenderer.invoke('get-store-data', 'noteCategories'),
+
+  saveNoteCategories: (cats: unknown[]) =>
+    ipcRenderer.invoke('set-store-data', 'noteCategories', cats),
+
   resetStore: async () => {
     await ipcRenderer.invoke('reset-store')
     ipcRenderer.send('quit-app')

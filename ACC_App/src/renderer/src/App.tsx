@@ -3,6 +3,7 @@ import CommandPalette from './components/CommandPalette'
 import { ConfigRecoveryBanner } from './components/ConfigRecoveryBanner'
 import { ModelWebview, type WebviewLike } from './components/ModelWebview'
 import ModelMarket from './components/ModelMarket'
+import Notes from './components/Notes'
 import Sidebar from './components/Sidebar'
 import SyncInput from './components/SyncInput'
 import { useModelSleep } from './hooks/useModelSleep'
@@ -64,6 +65,7 @@ function App(): React.JSX.Element {
   const applyModelsUpdate = useStore((s) => s.applyModelsUpdate)
   const markModelAsleep = useStore((s) => s.markModelAsleep)
   const mountModel = useStore((s) => s.mountModel)
+  const hydrateNotesFromDisk = useStore((s) => s.hydrateNotesFromDisk)
 
   const webviewRefs = useRef<Record<string, WebviewLike | null>>({})
 
@@ -135,6 +137,8 @@ function App(): React.JSX.Element {
         // ignore
       }
 
+      void hydrateNotesFromDisk()
+
       try {
         cleanup = window.api.onNavigateHome(() => {
           setPaletteOpen(false)
@@ -145,7 +149,7 @@ function App(): React.JSX.Element {
       }
     })()
     return () => cleanup?.()
-  }, [setActiveModelId, setHomeShortcut])
+  }, [setActiveModelId, setHomeShortcut, hydrateNotesFromDisk])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent): void => {
@@ -207,8 +211,11 @@ function App(): React.JSX.Element {
           </div>
           <div className={`relative flex-1 h-screen overflow-hidden ${isSyncEnabled ? 'pb-14' : ''}`}>
             {activeModelId === 'market' ? <ModelMarket /> : null}
+            {activeModelId === 'notes' ? <Notes /> : null}
 
-            <div className={activeModelId === 'market' ? 'hidden' : 'h-full w-full'}>
+            <div
+              className={activeModelId === 'market' || activeModelId === 'notes' ? 'hidden' : 'h-full w-full'}
+            >
               {!activeModelId ? <Welcome /> : null}
 
               {addedModels.map((model) => {

@@ -67,12 +67,44 @@ const schema = {
   chatHistory: {
     type: 'array',
     default: []
+  },
+  notes: {
+    type: 'array',
+    default: [],
+    items: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        title: { type: 'string' },
+        content: { type: 'string' },
+        color: { type: 'string' },
+        categoryIds: { type: 'array', default: [], items: { type: 'string' } },
+        // legacy single-category field (kept for backward compat)
+        categoryId: { type: ['string', 'null'] as any },
+        isDone: { type: 'boolean', default: false },
+        createdAt: { type: 'number' },
+        updatedAt: { type: 'number' }
+      }
+    }
+  },
+  noteCategories: {
+    type: 'array',
+    default: [],
+    items: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        color: { type: 'string' },
+        createdAt: { type: 'number' }
+      }
+    }
   }
 } as const
 
 let store: Store<any>
 
-const ALLOWED_STORE_KEYS = ['settings', 'models', 'chatHistory'] as const
+const ALLOWED_STORE_KEYS = ['settings', 'models', 'chatHistory', 'notes', 'noteCategories'] as const
 type StoreKey = (typeof ALLOWED_STORE_KEYS)[number]
 
 function isAllowedKey(key: unknown): key is StoreKey {

@@ -2,8 +2,8 @@ import { create } from 'zustand'
 import { normalizeAutoCloseTimeoutMinutes } from '../lib/autoCloseTimeout'
 import { isSettingsUiLocale, type SettingsUiLocale } from '../locales/settingsUi'
 import { DEFAULT_HOME_SHORTCUT, DEFAULT_SEARCH_SHORTCUT, parseShortcut } from '../lib/shortcut'
-import type { Model } from '../types'
-import { normalizeModel } from '../types'
+import type { Model, Note, NoteCategory } from '../types'
+import { normalizeModel, normalizeNote, normalizeNoteCategory } from '../types'
 
 export type ThemeMode = 'dark' | 'light'
 
@@ -25,6 +25,22 @@ async function persistModels(models: Model[]): Promise<void> {
   }
 }
 
+async function persistNotes(notes: Note[]): Promise<void> {
+  try {
+    await window.api?.saveNotes?.(notes as unknown[])
+  } catch {
+    console.warn('[renderer] persistNotes failed')
+  }
+}
+
+async function persistNoteCategories(cats: NoteCategory[]): Promise<void> {
+  try {
+    await window.api?.saveNoteCategories?.(cats as unknown[])
+  } catch {
+    console.warn('[renderer] persistNoteCategories failed')
+  }
+}
+
 type StoreState = {
   addedModels: Model[]
   activeModelId: string | null
@@ -39,6 +55,22 @@ type StoreState = {
   autoCloseTimeout: number
   /** Settings panel copy (persisted; wire UI picker later). */
   settingsUiLocale: SettingsUiLocale
+  notes: Note[]
+  noteCategories: NoteCategory[]
+  addNote: (partial?: Partial<Pick<Note, 'title' | 'color' | 'categoryIds'>>) => string
+  updateNote: (
+    id: string,
+    patch: Partial<Pick<Note, 'title' | 'content' | 'color' | 'categoryIds' | 'isDone'>>
+  ) => void
+  toggleNoteCategory: (noteId: string, categoryId: string) => void
+  deleteNote: (id: string) => void
+  reorderNotes: (params: { activeId: string; overId: string }) => void
+  applyNotesUpdate: (notes: Note[]) => void
+  addNoteCategory: (name: string, color?: string) => string
+  renameNoteCategory: (id: string, name: string) => void
+  setNoteCategoryColor: (id: string, color: string) => void
+  deleteNoteCategory: (id: string) => void
+  hydrateNotesFromDisk: () => Promise<void>
   addModel: (model: Omit<Model, 'lastActive' | 'isAsleep'> & Partial<Pick<Model, 'lastActive' | 'isAsleep'>>) => void
   removeModel: (id: string) => void
   toggleFavorite: (id: string) => void
@@ -75,6 +107,121 @@ export const useStore = create<StoreState>((set) => ({
   syncSelection: [],
   autoCloseTimeout: 30,
   settingsUiLocale: 'en',
+  notes: [],
+  noteCategories: [],
+  addNote: (partial) => {
+    const id = `note_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`
+    set((state) => {
+      const now = Date.now()
+      const next: Note = normalizeNote({
+        id,
+        title: partial?.title ?? 'Yeni Not',
+        color: partial?.color ?? '#7c3aed',
+        categoryIds: Array.isArray(partial?.categoryIds) ? partial?.categoryIds : [],
+        content: '',
+        isDone: false,
+        createdAt: now,
+        updatedAt: now
+      })
+      const notes = [next, ...state.notes]
+      void persistNotes(notes)
+      return { notes }
+    })
+    return id
+  },
+  updateNote: (id, patch) =>
+    set((state) => {
+      const now = Date.now()
+      const notes = state.notes.map((n) =>
+        n.id === id ? normalizeNote({ ...n, ...patch, updatedAt: now }) : n
+      )
+      void persistNotes(notes)
+      return { notes }
+    }),
+  toggleNoteCategory: (noteId, categoryId) =>
+    set((state) => {
+      const notes = state.notes.map((n) => {
+        if (n.id !== noteId) return n
+        const exists = n.categoryIds.includes(categoryId)
+        const categoryIds = exists
+          ? n.categoryIds.filter((x) => x !== categoryId)
+          : [...n.categoryIds, categoryId]
+        return normalizeNote({ ...n, categoryIds, updatedAt: Date.now() })
+      })
+      void persistNotes(notes)
+      return { notes }
+    }),
+  deleteNote: (id) =>
+    set((state) => {
+      const notes = state.notes.filter((n) => n.id !== id)
+      void persistNotes(notes)
+      return { notes }
+    }),
+  reorderNotes: ({ activeId, overId }) =>
+    set((state) => {
+      if (activeId === overId) return state
+      const from = state.notes.findIndex((n) => n.id === activeId)
+      const to = state.notes.findIndex((n) => n.id === overId)
+      if (from === -1 || to === -1) return state
+      const next = [...state.notes]
+      const moved = next.splice(from, 1)[0]
+      next.splice(to, 0, moved)
+      void persistNotes(next)
+      return { notes: next }
+    }),
+  applyNotesUpdate: (notes) => {
+    void persistNotes(notes)
+    set({ notes })
+  },
+  addNoteCategory: (name, color) => {
+    const id = `cat_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`
+    set((state) => {
+      const next = [
+        ...state.noteCategories,
+        normalizeNoteCategory({ id, name, color: color ?? '#0ea5e9', createdAt: Date.now() })
+      ]
+      void persistNoteCategories(next)
+      return { noteCategories: next }
+    })
+    return id
+  },
+  renameNoteCategory: (id, name) =>
+    set((state) => {
+      const next = state.noteCategories.map((c) => (c.id === id ? { ...c, name: name.trim() || c.name } : c))
+      void persistNoteCategories(next)
+      return { noteCategories: next }
+    }),
+  setNoteCategoryColor: (id, color) =>
+    set((state) => {
+      const next = state.noteCategories.map((c) => (c.id === id ? { ...c, color } : c))
+      void persistNoteCategories(next)
+      return { noteCategories: next }
+    }),
+  deleteNoteCategory: (id) =>
+    set((state) => {
+      const noteCategories = state.noteCategories.filter((c) => c.id !== id)
+      const notes = state.notes.map((n) =>
+        n.categoryIds.includes(id) ? { ...n, categoryIds: n.categoryIds.filter((x) => x !== id) } : n
+      )
+      void persistNoteCategories(noteCategories)
+      void persistNotes(notes)
+      return { noteCategories, notes }
+    }),
+  hydrateNotesFromDisk: async () => {
+    try {
+      const rawNotes = (await window.api?.getNotes?.()) as unknown
+      const rawCats = (await window.api?.getNoteCategories?.()) as unknown
+      const notes = Array.isArray(rawNotes)
+        ? (rawNotes as Record<string, unknown>[]).map((n) => normalizeNote({ ...(n as any), id: String((n as any).id ?? '') })).filter((n) => n.id)
+        : []
+      const noteCategories = Array.isArray(rawCats)
+        ? (rawCats as Record<string, unknown>[]).map((c) => normalizeNoteCategory({ ...(c as any), id: String((c as any).id ?? '') })).filter((c) => c.id)
+        : []
+      set({ notes, noteCategories })
+    } catch {
+      // ignore
+    }
+  },
   addModel: (model) =>
     set((state) => {
       const duplicateByUrl = state.addedModels.some((m) => m.url === model.url)

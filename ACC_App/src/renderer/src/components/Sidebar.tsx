@@ -1,4 +1,4 @@
-import { Plus, Zap, CheckCircle2, Circle, Home } from 'lucide-react'
+import { NotebookPen, Plus, Zap, CheckCircle2, Circle, Home } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -313,6 +313,30 @@ export default function Sidebar(): React.JSX.Element {
       </div>
 
       <div className="w-full flex flex-col items-center gap-2">
+        <div className="w-full flex items-center justify-center pt-1">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveModelId('notes')
+            }}
+            className={[
+              'h-12 w-12 rounded-full',
+              'bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10',
+              'border border-black/10 dark:border-white/10',
+              'transition',
+              'select-none',
+              'hover:shadow-[0_0_24px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_0_24px_rgba(255,255,255,0.18)]',
+              activeModelId === 'notes'
+                ? 'ring-2 ring-black/30 dark:ring-white/50 shadow-[0_0_18px_rgba(0,0,0,0.10)] dark:shadow-[0_0_18px_rgba(255,255,255,0.12)]'
+                : ''
+            ].join(' ')}
+            title="Not Defteri"
+            aria-label="Not Defteri"
+          >
+            <NotebookPen className="mx-auto text-black/70 dark:text-white/80" size={18} />
+          </button>
+        </div>
+
         <div className="w-full flex items-center justify-center pb-2">
           <button
             type="button"
@@ -324,6 +348,9 @@ export default function Sidebar(): React.JSX.Element {
               'bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10',
               'border border-black/10 dark:border-white/10',
               'transition',
+              activeModelId === 'market'
+                ? 'ring-2 ring-black/30 dark:ring-white/50 shadow-[0_0_18px_rgba(0,0,0,0.10)] dark:shadow-[0_0_18px_rgba(255,255,255,0.12)]'
+                : '',
               'hover:shadow-[0_0_24px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_0_24px_rgba(255,255,255,0.18)]'
             ].join(' ')}
             title="Model Ekle"
