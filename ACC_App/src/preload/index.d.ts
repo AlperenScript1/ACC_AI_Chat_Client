@@ -15,6 +15,7 @@ declare global {
         theme?: string
         animationsEnabled?: boolean
         searchShortcut?: string
+        notesShortcut?: string
         autoCloseTimeout?: number
         settingsUiLocale?: string
       }>

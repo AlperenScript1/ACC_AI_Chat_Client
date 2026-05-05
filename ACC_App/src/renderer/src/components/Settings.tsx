@@ -8,7 +8,12 @@ import {
   type SettingsUiCopy,
   type SleepSelectOption
 } from '../locales/settingsUi'
-import { DEFAULT_HOME_SHORTCUT, DEFAULT_SEARCH_SHORTCUT, shortcutFromEvent } from '../lib/shortcut'
+import {
+  DEFAULT_HOME_SHORTCUT,
+  DEFAULT_NOTES_SHORTCUT,
+  DEFAULT_SEARCH_SHORTCUT,
+  shortcutFromEvent
+} from '../lib/shortcut'
 
 function ResetDataSection({ t }: { t: SettingsUiCopy }): React.JSX.Element {
   const [step, setStep] = useState<'idle' | 'confirm' | 'warning'>('idle')
@@ -168,6 +173,8 @@ function SettingsPanel({
   const setSearchShortcut = useStore((s) => s.setSearchShortcut)
   const homeShortcut = useStore((s) => s.homeShortcut)
   const setHomeShortcut = useStore((s) => s.setHomeShortcut)
+  const notesShortcut = useStore((s) => s.notesShortcut)
+  const setNotesShortcut = useStore((s) => s.setNotesShortcut)
 
   const [windowBoundsLocked, setWindowBoundsLocked] = useState(true)
 
@@ -324,6 +331,34 @@ function SettingsPanel({
             <button
               type="button"
               onClick={() => setHomeShortcut(DEFAULT_HOME_SHORTCUT)}
+              className="shrink-0 text-[10px] font-medium text-red-600 dark:text-red-400 hover:underline"
+            >
+              {t.resetShortcut}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-xs text-black/40 dark:text-white/40">Not Defteri Kısayolu</label>
+          <input
+            value={notesShortcut}
+            readOnly
+            onKeyDown={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              const next = shortcutFromEvent(e.nativeEvent)
+              if (!next) return
+              setNotesShortcut(next)
+            }}
+            className="bg-white border border-black/10 text-black/80 text-xs rounded px-3 py-2 dark:bg-[#1a1a1a] dark:border-white/5 dark:text-white/70"
+          />
+          <div className="flex justify-between items-end gap-2">
+            <div className="text-[10px] text-black/35 dark:text-white/35 leading-snug flex-1 min-w-0">
+              Not Defteri sayfasını açar. Değiştirmek için bu alana basıp yeni kısayolu yazın.
+            </div>
+            <button
+              type="button"
+              onClick={() => setNotesShortcut(DEFAULT_NOTES_SHORTCUT)}
               className="shrink-0 text-[10px] font-medium text-red-600 dark:text-red-400 hover:underline"
             >
               {t.resetShortcut}

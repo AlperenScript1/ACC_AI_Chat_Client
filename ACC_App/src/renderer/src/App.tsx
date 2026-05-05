@@ -11,7 +11,7 @@ import { useGlobalEsc } from './hooks/useGlobalEsc'
 import { isSettingsUiLocale } from './locales/settingsUi'
 import { normalizeAutoCloseTimeoutMinutes } from './lib/autoCloseTimeout'
 import { buildInjectScript } from './lib/syncInjector'
-import { matchesShortcut, normalizeStoredSearchShortcut } from './lib/shortcut'
+import { matchesShortcut, normalizeStoredNotesShortcut, normalizeStoredSearchShortcut } from './lib/shortcut'
 import { useStore } from './store/useStore'
 import { normalizeModel } from './types'
 import pkg from '../../../package.json'
@@ -53,6 +53,7 @@ function App(): React.JSX.Element {
   const activeModelId = useStore((s) => s.activeModelId)
   const theme = useStore((s) => s.theme)
   const searchShortcut = useStore((s) => s.searchShortcut)
+  const notesShortcut = useStore((s) => s.notesShortcut)
   const isSyncEnabled = useStore((s) => s.isSyncEnabled)
   const syncSelection = useStore((s) => s.syncSelection)
   const toggleSync = useStore((s) => s.toggleSync)
@@ -101,6 +102,11 @@ function App(): React.JSX.Element {
         if (typeof settings?.searchShortcut === 'string') {
           useStore.setState({
             searchShortcut: normalizeStoredSearchShortcut(settings.searchShortcut)
+          })
+        }
+        if (typeof settings?.notesShortcut === 'string') {
+          useStore.setState({
+            notesShortcut: normalizeStoredNotesShortcut(settings.notesShortcut)
           })
         }
         if (typeof settings?.autoCloseTimeout === 'number') {
@@ -163,13 +169,25 @@ function App(): React.JSX.Element {
         e.preventDefault()
         setPaletteOpen(false)
         setActiveModelId(null)
+      } else if (matchesShortcut(e, notesShortcut)) {
+        e.preventDefault()
+        setPaletteOpen(false)
+        setActiveModelId('notes')
       } else if (e.key === 'Escape' && !isSettingsOpen && !isSyncEnabled) {
         setPaletteOpen(false)
       }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [searchShortcut, toggleSync, isSettingsOpen, isSyncEnabled, homeShortcut, setActiveModelId])
+  }, [
+    searchShortcut,
+    notesShortcut,
+    toggleSync,
+    isSettingsOpen,
+    isSyncEnabled,
+    homeShortcut,
+    setActiveModelId
+  ])
 
   useGlobalEsc({
     isSyncOpen: isSyncEnabled,

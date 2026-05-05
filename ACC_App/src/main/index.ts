@@ -32,6 +32,7 @@ const schema = {
       theme: { type: 'string', default: 'dark' },
       animationsEnabled: { type: 'boolean', default: true },
       searchShortcut: { type: 'string', default: 'Ctrl+F' },
+      notesShortcut: { type: 'string', default: 'Ctrl+N' },
       /** Minutes until model sleep; 0 = disabled. Negative = seconds (e.g. -5 for tests). */
       autoCloseTimeout: { type: 'number', default: 30 },
       /** Settings panel UI: en | tr (more later) */
@@ -44,6 +45,7 @@ const schema = {
       theme: 'dark',
       animationsEnabled: true,
       searchShortcut: 'Ctrl+F',
+      notesShortcut: 'Ctrl+N',
       autoCloseTimeout: 30,
       settingsUiLocale: 'en'
     }

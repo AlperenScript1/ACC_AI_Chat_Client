@@ -25,6 +25,9 @@ export const DEFAULT_SEARCH_SHORTCUT = 'Ctrl+F'
 /** Varsayılan home / ana ekran kısayolu (şema / reset ile uyumlu) */
 export const DEFAULT_HOME_SHORTCUT = 'Ctrl+H'
 
+/** Varsayılan not defteri kısayolu (şema / reset ile uyumlu) */
+export const DEFAULT_NOTES_SHORTCUT = 'Ctrl+N'
+
 export function parseShortcut(input: string): ParsedShortcut | null {
   const raw = input.trim()
   if (!raw) return null
@@ -62,6 +65,16 @@ export function normalizeStoredSearchShortcut(raw: unknown): string {
     return `Ctrl+${t.toUpperCase()}`
   }
   return parseShortcut(t) ? t : DEFAULT_SEARCH_SHORTCUT
+}
+
+export function normalizeStoredNotesShortcut(raw: unknown): string {
+  if (typeof raw !== 'string') return DEFAULT_NOTES_SHORTCUT
+  const t = raw.trim()
+  if (!t) return DEFAULT_NOTES_SHORTCUT
+  if (/^[a-z0-9]$/i.test(t)) {
+    return `Ctrl+${t.toUpperCase()}`
+  }
+  return parseShortcut(t) ? t : DEFAULT_NOTES_SHORTCUT
 }
 
 export function shortcutFromEvent(e: KeyboardEvent): string | null {

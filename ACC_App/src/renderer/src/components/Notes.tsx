@@ -152,7 +152,7 @@ export default function Notes(): React.JSX.Element {
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
-  const [activeCategoryId, setActiveCategoryId] = useState<string | 'all'>('all')
+  const [activeFilterIds, setActiveFilterIds] = useState<string[]>([])
   const [openNoteId, setOpenNoteId] = useState<string | null>(null)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
@@ -165,11 +165,10 @@ export default function Notes(): React.JSX.Element {
   })
 
   useEffect(() => {
-    // If there are no categories (or active category got deleted), fall back to "Hepsi".
-    if (activeCategoryId === 'all') return
-    const exists = noteCategories.some((c) => c.id === activeCategoryId)
-    if (!exists) setActiveCategoryId('all')
-  }, [noteCategories, activeCategoryId])
+    // If a selected filter category was deleted, drop it from selection.
+    const allowed = new Set(noteCategories.map((c) => c.id))
+    setActiveFilterIds((prev) => prev.filter((id) => allowed.has(id)))
+  }, [noteCategories])
 
   useEffect(() => {
     if (!menu.open) return
@@ -178,6 +177,22 @@ export default function Notes(): React.JSX.Element {
     return () => window.removeEventListener('mousedown', close)
   }, [menu.open])
 
+  useEffect(() => {
+    if (!openNoteId && !categoryModalOpen) return
+    const onKeyDown = (e: KeyboardEvent): void => {
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      // Close the top-most modal first.
+      if (categoryModalOpen) {
+        setCategoryModalOpen(false)
+        return
+      }
+      if (openNoteId) setOpenNoteId(null)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [openNoteId, categoryModalOpen])
+
   const categoryMap = useMemo(() => {
     const m = new Map<string, { name: string; color: string }>()
     for (const c of noteCategories) m.set(c.id, { name: c.name, color: c.color })
@@ -185,10 +200,18 @@ export default function Notes(): React.JSX.Element {
   }, [noteCategories])
 
   const filteredNotes = useMemo(() => {
-    if (activeCategoryId === 'all') return notes
-    if (activeCategoryId === DONE_CATEGORY_ID) return notes.filter((n) => n.isDone)
-    return notes.filter((n) => n.categoryIds.includes(activeCategoryId))
-  }, [notes, activeCategoryId])
+    if (activeFilterIds.length === 0) return notes
+
+    const wantsDone = activeFilterIds.includes(DONE_CATEGORY_ID)
+    const categoryFilters = activeFilterIds.filter((id) => id !== DONE_CATEGORY_ID)
+
+    return notes.filter((n) => {
+      if (wantsDone && !n.isDone) return false
+      if (categoryFilters.length === 0) return true
+      // OR match: any selected category
+      return categoryFilters.some((id) => n.categoryIds.includes(id))
+    })
+  }, [notes, activeFilterIds])
 
   const openNote = useMemo(() => {
     if (!openNoteId) return null
@@ -221,7 +244,7 @@ export default function Notes(): React.JSX.Element {
           <div className="flex items-center justify-between gap-4">
             <div>
               <div className={['text-2xl font-semibold', isLight ? 'text-black' : 'text-white'].join(' ')}>
-                Not Defteri
+                Not 
               </div>
               <div className={['mt-1 text-xs', isLight ? 'text-black/50' : 'text-white/40 select-none'].join(' ')}>
                 Kartları sürükleyerek sıralayabilirsiniz. Not içine girince tam sayfa açılır.
@@ -264,16 +287,21 @@ export default function Notes(): React.JSX.Element {
           <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-1">
             <button
               type="button"
-              onClick={() => setActiveCategoryId('all')}
+              onClick={() => setActiveFilterIds([])}
               className={`px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors border
                 ${
-                  activeCategoryId === 'all'
+                  activeFilterIds.length === 0
                     ? isLight
                       ? 'bg-black/5 border-black/20 text-black'
                       : 'bg-white/10 border-white/20 text-white'
                     : isLight
                       ? 'bg-transparent border-black/10 text-black/60 hover:border-black/20'
                       : 'bg-transparent border-white/5 text-white/60 hover:border-white/10'
+                } ${
+                  // Hepsi is always shown as "disabled-ish", but still clickable to reset filters.
+                  activeFilterIds.length === 0
+                    ? 'opacity-45 cursor-default'
+                    : 'opacity-45 hover:opacity-70 cursor-pointer'
                 }`} 
             >
               Hepsi
@@ -282,10 +310,14 @@ export default function Notes(): React.JSX.Element {
               <button
                 key={c.id}
                 type="button"
-                onClick={() => setActiveCategoryId(c.id)}
+                onClick={() =>
+                  setActiveFilterIds((prev) =>
+                    prev.includes(c.id) ? prev.filter((x) => x !== c.id) : [...prev, c.id]
+                  )
+                }
                 className={`px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors border
                   ${
-                    activeCategoryId === c.id
+                    activeFilterIds.includes(c.id)
                       ? isLight
                         ? 'bg-black/5 border-black/20 text-black'
                         : 'bg-white/10 border-white/20 text-white'
@@ -307,7 +339,7 @@ export default function Notes(): React.JSX.Element {
           </div>
 
           <div className={['mt-3 text-[12px]', isLight ? 'text-black/45' : 'text-white/35 select-none'].join(' ')}>
-            Buradan kategori seçerek notları filtreleyebilirsiniz.
+            Buradan kategori seçerek notları filtreleyebilirsiniz. Birden fazla kategori seçebilirsiniz.
           </div>
         </div>
 
@@ -337,7 +369,7 @@ export default function Notes(): React.JSX.Element {
                   if (!overId) return
                   const activeId = String(event.active.id)
                   const over = String(overId)
-                  if (activeCategoryId === 'all') {
+                  if (activeFilterIds.length === 0) {
                     reorderNotes({ activeId, overId: over })
                     return
                   }
@@ -469,7 +501,7 @@ export default function Notes(): React.JSX.Element {
                   ].join(' ')}
                   placeholder="(Başlık)"
                 />
-                <div className={['mt-1 text-xs', isLight ? 'text-black/45' : 'text-white/35'].join(' ')}>
+                <div className={['mt-1 text-xs', isLight ? 'text-black/45' : 'text-white/35', 'select-none'].join(' ')}>
                   {openCategories.length > 0
                     ? `Kategori: ${openCategories.map((c) => c.name).join(', ')}`
                     : 'Kategori: (yok)'}
@@ -534,12 +566,12 @@ export default function Notes(): React.JSX.Element {
                   isLight ? 'border-black/10 bg-black/[0.02]' : 'border-white/10 bg-white/[0.02]'
                 ].join(' ')}
               >
-                <div className={['text-sm font-semibold mb-4', isLight ? 'text-black' : 'text-white'].join(' ')}>
+                <div className={['text-sm font-semibold mb-4', isLight ? 'text-black' : 'text-white', 'select-none'].join(' ')}>
                   Ayarlar
                 </div>
 
                 <div className="mb-6">
-                  <div className={['text-xs mb-2', isLight ? 'text-black/50' : 'text-white/40'].join(' ')}>
+                  <div className={['text-xs mb-2', isLight ? 'text-black/50' : 'text-white/40', 'select-none'].join(' ')}>
                     Renk
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
@@ -567,7 +599,7 @@ export default function Notes(): React.JSX.Element {
                 </div>
 
                 <div className="mb-6">
-                  <div className={['text-xs mb-2', isLight ? 'text-black/50' : 'text-white/40'].join(' ')}>
+                  <div className={['text-xs mb-2', isLight ? 'text-black/50' : 'text-white/40', 'select-none'].join(' ')}>
                     Kategori
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -701,13 +733,13 @@ export default function Notes(): React.JSX.Element {
                 ].join(' ')}
               >
                 <Plus size={18} />
-                Ekle
+                <span className={"select-none"}>Add</span>
               </button>
             </div>
 
             {noteCategories.length > 0 ? (
               <div className="mt-5">
-                <div className={['text-xs mb-2', isLight ? 'text-black/50' : 'text-white/40'].join(' ')}>
+                <div className={['text-xs mb-2', isLight ? 'text-black/50' : 'text-white/40', 'select-none'].join(' ')}>
                   Mevcut kategoriler
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -745,8 +777,8 @@ export default function Notes(): React.JSX.Element {
                           <Trash2 size={14} className={isLight ? 'text-black/50' : 'text-white/50'} />
                         </button>
                       ) : (
-                        <span className={['ml-2 text-[11px]', isLight ? 'text-black/40' : 'text-white/35'].join(' ')}>
-                          (varsayılan)
+                        <span className={['ml-2 text-[11px]', isLight ? 'text-black/40' : 'text-white/35', 'select-none'].join(' ')}>
+                          (default)
                         </span>
                       )}
                     </div>

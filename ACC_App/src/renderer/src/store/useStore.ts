@@ -1,7 +1,12 @@
 import { create } from 'zustand'
 import { normalizeAutoCloseTimeoutMinutes } from '../lib/autoCloseTimeout'
 import { isSettingsUiLocale, type SettingsUiLocale } from '../locales/settingsUi'
-import { DEFAULT_HOME_SHORTCUT, DEFAULT_SEARCH_SHORTCUT, parseShortcut } from '../lib/shortcut'
+import {
+  DEFAULT_HOME_SHORTCUT,
+  DEFAULT_NOTES_SHORTCUT,
+  DEFAULT_SEARCH_SHORTCUT,
+  parseShortcut
+} from '../lib/shortcut'
 import type { Model, Note, NoteCategory } from '../types'
 import { normalizeModel, normalizeNote, normalizeNoteCategory } from '../types'
 
@@ -51,6 +56,7 @@ type StoreState = {
   isSettingsOpen: boolean
   homeShortcut: string
   searchShortcut: string
+  notesShortcut: string
   isSyncEnabled: boolean
   syncSelection: string[]
   /** Dakika: 10 | 30 | 60 | 120 | 180 (varsayılan 30) */
@@ -87,6 +93,7 @@ type StoreState = {
   setIsSettingsOpen: (open: boolean) => void
   setHomeShortcut: (shortcut: string) => void
   setSearchShortcut: (key: string) => void
+  setNotesShortcut: (key: string) => void
   toggleSync: () => void
   toggleModelInSync: (id: string) => void
   setAutoCloseTimeout: (minutes: number) => void
@@ -105,6 +112,7 @@ export const useStore = create<StoreState>((set) => ({
   isSettingsOpen: false,
   homeShortcut: DEFAULT_HOME_SHORTCUT,
   searchShortcut: DEFAULT_SEARCH_SHORTCUT,
+  notesShortcut: DEFAULT_NOTES_SHORTCUT,
   isSyncEnabled: false,
   syncSelection: [],
   autoCloseTimeout: 30,
@@ -330,6 +338,12 @@ export const useStore = create<StoreState>((set) => ({
     const next = parseShortcut(t) ? t : DEFAULT_SEARCH_SHORTCUT
     void persistSettings({ searchShortcut: next })
     set({ searchShortcut: next })
+  },
+  setNotesShortcut: (key) => {
+    const t = key.trim()
+    const next = parseShortcut(t) ? t : DEFAULT_NOTES_SHORTCUT
+    void persistSettings({ notesShortcut: next })
+    set({ notesShortcut: next })
   },
   toggleSync: () =>
     set((s) => {
