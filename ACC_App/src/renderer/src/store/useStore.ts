@@ -7,6 +7,8 @@ import { normalizeModel, normalizeNote, normalizeNoteCategory } from '../types'
 
 export type ThemeMode = 'dark' | 'light'
 
+export const DONE_CATEGORY_ID = 'cat_done' as const
+
 async function persistSettings(partial: Record<string, unknown>): Promise<void> {
   try {
     const prev = (await window.api?.getSettings?.()) as Record<string, unknown> | undefined
@@ -199,6 +201,7 @@ export const useStore = create<StoreState>((set) => ({
     }),
   deleteNoteCategory: (id) =>
     set((state) => {
+      if (id === DONE_CATEGORY_ID) return state
       const noteCategories = state.noteCategories.filter((c) => c.id !== id)
       const notes = state.notes.map((n) =>
         n.categoryIds.includes(id) ? { ...n, categoryIds: n.categoryIds.filter((x) => x !== id) } : n
@@ -215,9 +218,29 @@ export const useStore = create<StoreState>((set) => ({
         ? (rawNotes as Record<string, unknown>[]).map((n) => normalizeNote({ ...(n as any), id: String((n as any).id ?? '') })).filter((n) => n.id)
         : []
       const noteCategories = Array.isArray(rawCats)
-        ? (rawCats as Record<string, unknown>[]).map((c) => normalizeNoteCategory({ ...(c as any), id: String((c as any).id ?? '') })).filter((c) => c.id)
+        ? (rawCats as Record<string, unknown>[])
+            .map((c) =>
+              normalizeNoteCategory({ ...(c as any), id: String((c as any).id ?? '') })
+            )
+            .filter((c) => c.id)
         : []
-      set({ notes, noteCategories })
+
+      // Ensure default, non-deletable "Tamamlananlar" category exists.
+      const hasDone = noteCategories.some((c) => c.id === DONE_CATEGORY_ID)
+      const nextCategories = hasDone
+        ? noteCategories
+        : [
+            ...noteCategories,
+            normalizeNoteCategory({
+              id: DONE_CATEGORY_ID,
+              name: 'Tamamlananlar',
+              color: '#10b981',
+              createdAt: Date.now()
+            })
+          ]
+
+      if (!hasDone) void persistNoteCategories(nextCategories)
+      set({ notes, noteCategories: nextCategories })
     } catch {
       // ignore
     }

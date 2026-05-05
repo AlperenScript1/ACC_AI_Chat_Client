@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { CheckCircle2, Circle, Plus, Tag, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useStore } from '../store/useStore'
+import { DONE_CATEGORY_ID } from '../store/useStore'
 
 function hexToRgba(hex: string, alpha: number): string {
   const raw = hex.replace('#', '').trim()
@@ -185,6 +186,7 @@ export default function Notes(): React.JSX.Element {
 
   const filteredNotes = useMemo(() => {
     if (activeCategoryId === 'all') return notes
+    if (activeCategoryId === DONE_CATEGORY_ID) return notes.filter((n) => n.isDone)
     return notes.filter((n) => n.categoryIds.includes(activeCategoryId))
   }, [notes, activeCategoryId])
 
@@ -584,7 +586,9 @@ export default function Notes(): React.JSX.Element {
                     >
                       (Yok)
                     </button>
-                    {noteCategories.map((c) => (
+                    {noteCategories
+                      .filter((c) => c.id !== DONE_CATEGORY_ID)
+                      .map((c) => (
                       <button
                         key={c.id}
                         type="button"
@@ -632,7 +636,7 @@ export default function Notes(): React.JSX.Element {
             ].join(' ')}
           >
             <div className={['text-lg font-semibold', isLight ? 'text-black' : 'text-white'].join(' ')}>
-              Kategoriler
+              <span className='select-none' >Kategoriler</span>
             </div>
             <button
               type="button"
@@ -673,7 +677,7 @@ export default function Notes(): React.JSX.Element {
               <input
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="Kategori adı (Örn: İş, Okul...)"
+                placeholder="Kategori adı (Örn: x, x...)"
                 className={[
                   'flex-1 px-3 py-2 rounded-xl border text-sm outline-none',
                   isLight
@@ -726,19 +730,25 @@ export default function Notes(): React.JSX.Element {
                       <span className={['text-xs', isLight ? 'text-black/80' : 'text-white/80'].join(' ')}>
                         {c.name}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => deleteNoteCategory(c.id)}
-                        className={[
-                          'ml-1 w-8 h-8 rounded-lg border border-transparent transition flex items-center justify-center',
-                          isLight
-                            ? 'hover:bg-red-500/10 hover:border-red-500/20'
-                            : 'hover:bg-red-500/15 hover:border-red-500/30'
-                        ].join(' ')}
-                        title="Sil"
-                      >
-                        <Trash2 size={14} className={isLight ? 'text-black/50' : 'text-white/50'} />
-                      </button>
+                      {c.id !== DONE_CATEGORY_ID ? (
+                        <button
+                          type="button"
+                          onClick={() => deleteNoteCategory(c.id)}
+                          className={[
+                            'ml-1 w-8 h-8 rounded-lg border border-transparent transition flex items-center justify-center',
+                            isLight
+                              ? 'hover:bg-red-500/10 hover:border-red-500/20'
+                              : 'hover:bg-red-500/15 hover:border-red-500/30'
+                          ].join(' ')}
+                          title="Sil"
+                        >
+                          <Trash2 size={14} className={isLight ? 'text-black/50' : 'text-white/50'} />
+                        </button>
+                      ) : (
+                        <span className={['ml-2 text-[11px]', isLight ? 'text-black/40' : 'text-white/35'].join(' ')}>
+                          (varsayılan)
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
