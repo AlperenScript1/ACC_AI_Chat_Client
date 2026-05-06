@@ -1,0 +1,147 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "add": "Add",
+    "rename": "Rename",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "areYouSure": "Are you sure?",
+    "actionCannotBeUndone": "This action cannot be undone."
+  },
+  "sidebar": {
+    "home": "Home",
+    "notes": "Notes",
+    "addModel": "Add Model",
+    "syncMode": "Sync Mode",
+    "sleepModeSuffix": "(Sleep Mode)",
+    "delete": "Delete"
+  },
+  "contextMenu": {
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "delete": "Delete",
+    "close": "Close"
+  },
+  "notes": {
+    "title": "Notes",
+    "subtitle": "You can reorder cards by dragging. Opening a note shows it full screen.",
+    "newNote": "New Note",
+    "untitled": "New Note",
+    "contentPlaceholder": "Note content...",
+    "toggleDone": "Mark as done / not done",
+    "filtersAll": "All",
+    "filtersHint": "Select categories here to filter notes. You can select multiple categories.",
+    "emptyPrefix": "No notes yet. Create one from the top right with",
+    "emptySuffix": ".",
+    "titlePlaceholder": "(Title)",
+    "done": "Done",
+    "notDone": "Not done",
+    "sidebarTitle": "Settings",
+    "color": "Color"
+  },
+  "categories": {
+    "title": "Categories",
+    "open": "Open categories",
+    "label": "Category",
+    "none": "(none)",
+    "addHint": "You can add a new category.",
+    "color": "Category color",
+    "namePlaceholder": "Category name (e.g. Work, Personal...)",
+    "existing": "Existing categories",
+    "default": "(default)"
+  },
+  "sync": {
+    "needSelectModel": "For Sync mode you must select at least one model",
+    "selectFromSidebar": "Select a model from the sidebar",
+    "sendToSelected": "Send to selected models...",
+    "send": "Send",
+    "selectedCount": "{{count}} model selected"
+  },
+  "market": {
+    "title": "AI Model Store",
+    "searchPlaceholder": "Search models...",
+    "open": "Open",
+    "added": "Added",
+    "add": "Add",
+    "categories": {
+      "all": "All",
+      "chat": "Chat",
+      "coding": "Coding",
+      "research": "Research",
+      "visual": "Visual"
+    },
+    "items": {
+      "chatgpt": { "desc": "OpenAI's powerful language model", "category": "chat" },
+      "claude": { "desc": "Anthropic's analytical assistant", "category": "coding" },
+      "gemini": { "desc": "Google's multimodal AI", "category": "research" },
+      "perplexity": { "desc": "Real-time web research", "category": "research" },
+      "copilot": { "desc": "Code completion and review", "category": "coding" },
+      "midjourney": { "desc": "Image generation platform", "category": "visual" },
+      "ideogram": { "desc": "Text-based image generation", "category": "visual" },
+      "mistral": { "desc": "Europe's open model", "category": "chat" },
+      "grok": { "desc": "xAI's real-time assistant", "category": "chat" },
+      "deepseek": { "desc": "Popular open model from China", "category": "coding" },
+      "poe": { "desc": "Multi-model access platform", "category": "chat" },
+      "suno": { "desc": "AI music generation", "category": "visual" }
+    }
+  },
+  "configRecovery": {
+    "title": "Configuration file was recreated",
+    "body": "config.json was missing or corrupt, so it was automatically recreated with default settings. Your previous settings may have been lost."
+  },
+  "app": {
+    "brand": "ACC - AI Chat Client",
+    "welcomeTitle": "Select a model to get started",
+    "welcomeHintPrefix": "Add a model using the",
+    "welcomeHintSuffix": "button on the left.",
+    "poweredBy": "Powered by Electron & React",
+    "preAlpha": "Pre-Alpha"
+  },
+  "settings": {
+    "language": "Language / Dil",
+    "languageSelect": "Select Language",
+    "notesShortcutTitle": "Notes shortcut",
+    "notesShortcutDesc": "Opens the Notes page. Click here and press a new shortcut to change it."
+    ,
+    "title": "Settings",
+    "openSettings": "Open settings",
+    "sectionGeneral": "General",
+    "sectionAppearance": "Appearance",
+    "sectionWindow": "Window",
+    "sectionShortcuts": "Shortcuts",
+    "sectionDanger": "Danger zone",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "animations": "Animations",
+    "stateOn": "On",
+    "stateOff": "Off",
+    "windowBounds": "Lock window size",
+    "windowBoundsHint": "When enabled, the window cannot be resized smaller than the minimum size.",
+    "searchShortcut": "Search shortcut",
+    "searchShortcutDesc": "Click the field and press a new shortcut to change it.",
+    "homeShortcut": "Home shortcut",
+    "homeShortcutDesc": "Click the field and press a new shortcut to change it.",
+    "resetShortcut": "Reset",
+    "autoClose": "Auto shutdown",
+    "autoCloseDesc": "After this time of inactivity, the active model is put to sleep (0 = off).",
+    "autoClose10m": "10 min",
+    "autoClose30m": "30 min",
+    "autoClose60m": "60 min",
+    "autoClose120m": "120 min",
+    "autoClose180m": "180 min",
+    "autoCloseOff": "Off",
+    "deleteData": "Delete All Data",
+    "deleteDataDesc": "Permanently delete all notes and categories",
+    "deleteDataConfirm": "This will permanently delete ALL your data. Type DELETE to confirm.",
+    "securityInfo": "Your data is stored locally on your device only."
+  }
+}
+

@@ -23,10 +23,11 @@ try {
 
 // --- Store schema & initialization ---
 const schema = {
+  language: { type: 'string', default: 'en' },
   settings: {
     type: 'object',
     properties: {
-      language: { type: 'string', default: 'tr' },
+      language: { type: 'string', default: 'en' },
       homeHotkey: { type: 'string', default: 'Ctrl+H' },
       windowBoundsLocked: { type: 'boolean', default: true },
       theme: { type: 'string', default: 'dark' },
@@ -39,7 +40,7 @@ const schema = {
       settingsUiLocale: { type: 'string', default: 'en' }
     },
     default: {
-      language: 'tr',
+      language: 'en',
       homeHotkey: 'Ctrl+H',
       windowBoundsLocked: true,
       theme: 'dark',
@@ -106,11 +107,38 @@ const schema = {
 
 let store: Store<any>
 
-const ALLOWED_STORE_KEYS = ['settings', 'models', 'chatHistory', 'notes', 'noteCategories'] as const
+const ALLOWED_STORE_KEYS = [
+  'settings',
+  'language',
+  'models',
+  'chatHistory',
+  'notes',
+  'noteCategories'
+] as const
 type StoreKey = (typeof ALLOWED_STORE_KEYS)[number]
 
 function isAllowedKey(key: unknown): key is StoreKey {
   return typeof key === 'string' && ALLOWED_STORE_KEYS.includes(key as StoreKey)
+}
+
+// Whitelist of valid settings keys renderer may read/write via getConfig/setConfig.
+// NOTE: Keep this tight; do not allow arbitrary writes into electron-store.
+const ALLOWED_KEYS = [
+  'theme',
+  'animationsEnabled',
+  'homeHotkey',
+  'windowBoundsLocked',
+  'searchShortcut',
+  'notesShortcut',
+  'autoCloseTimeout',
+  'settingsUiLocale',
+  'language'
+] as const
+
+type AllowedConfigKey = (typeof ALLOWED_KEYS)[number]
+
+function isAllowedConfigKey(key: unknown): key is AllowedConfigKey {
+  return typeof key === 'string' && (ALLOWED_KEYS as readonly string[]).includes(key)
 }
 
 // --- Config recovery detection ---
@@ -366,6 +394,42 @@ app.whenReady().then(() => {
         registerHomeShortcut(mainWindow, s.homeHotkey)
       }
     }
+    return true
+  })
+
+  // --- IPC Handlers (settings key/value bridge) ---
+  ipcMain.handle('get-config', async (_event, key: unknown) => {
+    if (!isAllowedConfigKey(key)) {
+      console.warn('[IPC] Rejected get-config for unknown key:', key)
+      return null
+    }
+    const settings = (store.get('settings') as Record<string, unknown> | undefined) ?? {}
+    return settings[key]
+  })
+
+  ipcMain.handle('set-config', async (_event, key: unknown, value: unknown) => {
+    if (!isAllowedConfigKey(key)) {
+      console.warn('[IPC] Rejected set-config for unknown key:', key)
+      return false
+    }
+    if (value === undefined || value === null) {
+      console.warn('[IPC] Rejected null/undefined value for key:', key)
+      return false
+    }
+
+    const prev = (store.get('settings') as Record<string, unknown> | undefined) ?? {}
+    const next = { ...prev, [key]: value }
+    store.set('settings', next)
+
+    // Apply side effects for specific settings immediately.
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    if (key === 'windowBoundsLocked' && win) {
+      applyWindowBoundsLock(win, Boolean(value))
+    }
+    if (key === 'homeHotkey' && mainWindow && typeof value === 'string') {
+      registerHomeShortcut(mainWindow, value)
+    }
+
     return true
   })
 

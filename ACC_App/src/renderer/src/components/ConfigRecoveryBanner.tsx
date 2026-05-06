@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export function ConfigRecoveryBanner(): React.JSX.Element | null {
+  const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export function ConfigRecoveryBanner(): React.JSX.Element | null {
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255, 0, 0, 0.95)' }}>
-            Yapılandırma Dosyası Yeniden Oluşturuldu
+            {t('configRecovery.title')}
           </div>
           <div style={{ marginTop: 2, fontSize: 12, color: 'rgba(255, 255, 255, 0.75)' }}>
             <code
@@ -64,14 +66,13 @@ export function ConfigRecoveryBanner(): React.JSX.Element | null {
             >
               config.json
             </code>{' '}
-            bulunamadığı veya bozuk olduğu için varsayılan ayarlarla otomatik olarak yeniden oluşturuldu.
-            Önceki ayarlarınız kaybolmuş olabilir.
+            {t('configRecovery.body')}
           </div>
         </div>
 
         <button
           onClick={() => setVisible(false)}
-          aria-label="Kapat"
+          aria-label={t('common.close')}
           style={{
             flexShrink: 0,
             background: 'transparent',

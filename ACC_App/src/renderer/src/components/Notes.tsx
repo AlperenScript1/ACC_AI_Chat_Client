@@ -3,6 +3,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities'
 import { CheckCircle2, Circle, Plus, Tag, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useStore } from '../store/useStore'
 import { DONE_CATEGORY_ID } from '../store/useStore'
 
@@ -44,6 +45,7 @@ function NoteCard({
   onContextMenu: (e: React.MouseEvent) => void
   onOpen: () => void
 }): React.JSX.Element {
+  const { t } = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -72,7 +74,8 @@ function NoteCard({
             onToggleDone()
           }}
           className="w-10 h-10 rounded-xl border border-black/10 dark:border-white/10 shrink-0 bg-white/40 dark:bg-black/25 flex items-center justify-center"
-          title="Yapıldı / Yapılmadı"
+          title={t('notes.toggleDone')}
+          aria-label={t('notes.toggleDone')}
         >
           {isDone ? (
             <CheckCircle2 size={18} className="text-emerald-600" />
@@ -83,12 +86,12 @@ function NoteCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <div className="text-sm font-semibold text-black/90 dark:text-white truncate">
-              {title || 'Yeni Not'}
+              {title || t('notes.untitled')}
             </div>
           </div>
           <div className="mt-1 text-xs text-black/50 dark:text-white/35">
             <div className="max-h-9 overflow-hidden">
-              {content?.trim() ? content : 'Not içeriği...'}
+              {content?.trim() ? content : t('notes.contentPlaceholder')}
             </div>
           </div>
           {categoryNames.length > 0 ? (
@@ -114,6 +117,7 @@ function ModalShell({
   onClose: () => void
   className: string
 }): React.JSX.Element | null {
+  const { t } = useTranslation()
   if (!open) return null
   return (
     <div className="absolute inset-0 z-50">
@@ -121,7 +125,7 @@ function ModalShell({
         type="button"
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
-        aria-label="Close"
+        aria-label={t('common.close')}
       />
       <div className="absolute inset-0 p-6 md:p-10">
         <div
@@ -138,6 +142,7 @@ function ModalShell({
 }
 
 export default function Notes(): React.JSX.Element {
+  const { t } = useTranslation()
   const theme = useStore((s) => s.theme)
   const notes = useStore((s) => s.notes)
   const noteCategories = useStore((s) => s.noteCategories)
@@ -244,10 +249,10 @@ export default function Notes(): React.JSX.Element {
           <div className="flex items-center justify-between gap-4">
             <div>
               <div className={['text-2xl font-semibold', isLight ? 'text-black' : 'text-white'].join(' ')}>
-                Not 
+                {t('notes.title')}
               </div>
               <div className={['mt-1 text-xs', isLight ? 'text-black/50' : 'text-white/40 select-none'].join(' ')}>
-                Kartları sürükleyerek sıralayabilirsiniz. Not içine girince tam sayfa açılır.
+                {t('notes.subtitle')}
               </div>
             </div>
             <div className="flex items-center gap-2 select-none">
@@ -260,10 +265,11 @@ export default function Notes(): React.JSX.Element {
                     ? 'bg-white hover:bg-black/5 border-black/10 text-black'
                     : 'bg-black/20 hover:bg-white/10 border-white/10 text-white'
                 ].join(' ')}
-                title="Kategori ekle"
+                title={t('categories.open')}
+                aria-label={t('categories.open')}
               >
                 <Tag size={18} />
-                Kategoriler
+                {t('categories.title')}
               </button>
               <button
                 type="button"
@@ -279,7 +285,7 @@ export default function Notes(): React.JSX.Element {
                 ].join(' ')}
               >
                 <Plus size={18} />
-                Yeni Not
+                {t('notes.newNote')}
               </button>
             </div>
           </div>
@@ -304,7 +310,7 @@ export default function Notes(): React.JSX.Element {
                     : 'opacity-45 hover:opacity-70 cursor-pointer'
                 }`} 
             >
-              Hepsi
+              {t('notes.filtersAll')}
             </button>
             {noteCategories.map((c) => (
               <button
@@ -339,7 +345,7 @@ export default function Notes(): React.JSX.Element {
           </div>
 
           <div className={['mt-3 text-[12px]', isLight ? 'text-black/45' : 'text-white/35 select-none'].join(' ')}>
-            Buradan kategori seçerek notları filtreleyebilirsiniz. Birden fazla kategori seçebilirsiniz.
+            {t('notes.filtersHint')}
           </div>
         </div>
 
@@ -354,11 +360,11 @@ export default function Notes(): React.JSX.Element {
                     : 'text-white/45 border-white/10 bg-white/5'
                 ].join(' ')}
               >
-                Henüz not yok. Sağ üstten{' '}
+                {t('notes.emptyPrefix')}{' '}
                 <span className={isLight ? 'text-black/80 font-semibold' : 'text-white/70 font-semibold'}>
-                  Yeni Not
+                  {t('notes.newNote')}
                 </span>{' '}
-                ile oluşturabilirsiniz.
+                {t('notes.emptySuffix')}
               </div>
             ) : (
               <DndContext
@@ -448,14 +454,14 @@ export default function Notes(): React.JSX.Element {
               setMenu({ open: false, id: null, x: 0, y: 0 })
             }}
           >
-            Sil
+            {t('contextMenu.delete')}
           </button>
           <button
             type="button"
             className="w-full text-left px-3 py-2 text-xs hover:bg-black/5 dark:hover:bg-white/5 transition"
             onClick={() => setMenu({ open: false, id: null, x: 0, y: 0 })}
           >
-            Kapat
+            {t('contextMenu.close')}
           </button>
         </div>
       ) : null}
@@ -486,7 +492,7 @@ export default function Notes(): React.JSX.Element {
                   'w-10 h-10 rounded-xl border transition flex items-center justify-center',
                   isLight ? 'border-black/10 bg-black/5 hover:bg-black/10' : 'border-white/10 bg-white/5 hover:bg-white/10'
                 ].join(' ')}
-                title="Kapat"
+                title={t('common.close')}
               >
                 <X size={18} />
               </button>
@@ -499,12 +505,12 @@ export default function Notes(): React.JSX.Element {
                     'w-full bg-transparent outline-none text-lg font-semibold',
                     isLight ? 'text-black placeholder:text-black/30' : 'text-white placeholder:text-white/20'
                   ].join(' ')}
-                  placeholder="(Başlık)"
+                  placeholder={t('notes.titlePlaceholder')}
                 />
                 <div className={['mt-1 text-xs', isLight ? 'text-black/45' : 'text-white/35', 'select-none'].join(' ')}>
                   {openCategories.length > 0
-                    ? `Kategori: ${openCategories.map((c) => c.name).join(', ')}`
-                    : 'Kategori: (yok)'}
+                    ? `${t('categories.label')}: ${openCategories.map((c) => c.name).join(', ')}`
+                    : `${t('categories.label')}: ${t('categories.none')}`}
                 </div>
               </div>
 
@@ -515,15 +521,15 @@ export default function Notes(): React.JSX.Element {
                   'px-3 py-2 rounded-xl border text-sm transition inline-flex items-center gap-2',
                   isLight ? 'border-black/10 bg-black/5 hover:bg-black/10' : 'border-white/10 bg-white/5 hover:bg-white/10'
                 ].join(' ')}
-                title="Yapıldı / Yapılmadı"
+                title={t('notes.toggleDone')}
               >
                 {openNote.isDone ? (
                   <>
-                    <CheckCircle2 size={18} className="text-emerald-500" /> Yapıldı
+                    <CheckCircle2 size={18} className="text-emerald-500" /> {t('notes.done')}
                   </>
                 ) : (
                   <>
-                    <Circle size={18} className="text-white/30" /> Yapılmadı
+                    <Circle size={18} className="text-white/30" /> {t('notes.notDone')}
                   </>
                 )}
               </button>
@@ -540,7 +546,7 @@ export default function Notes(): React.JSX.Element {
                     ? 'border-black/10 bg-black/5 hover:bg-red-500/15 hover:border-red-500/30'
                     : 'border-white/10 bg-white/5 hover:bg-red-500/15 hover:border-red-500/30'
                 ].join(' ')}
-                title="Sil"
+                title={t('common.delete')}
               >
                 <Trash2 size={18} className={isLight ? 'text-black/70' : 'text-white/70'} />
               </button>
@@ -551,7 +557,7 @@ export default function Notes(): React.JSX.Element {
                 <textarea
                   value={openNote.content}
                   onChange={(e) => updateNote(openNote.id, { content: e.target.value })}
-                  placeholder="Not içeriği..."
+                  placeholder={t('notes.contentPlaceholder')}
                   className={[
                     'w-full h-full min-h-[300px] resize-none bg-transparent outline-none text-sm leading-relaxed overflow-y-auto',
                     '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
@@ -567,12 +573,12 @@ export default function Notes(): React.JSX.Element {
                 ].join(' ')}
               >
                 <div className={['text-sm font-semibold mb-4', isLight ? 'text-black' : 'text-white', 'select-none'].join(' ')}>
-                  Ayarlar
+                  {t('notes.sidebarTitle')}
                 </div>
 
                 <div className="mb-6">
                   <div className={['text-xs mb-2', isLight ? 'text-black/50' : 'text-white/40', 'select-none'].join(' ')}>
-                    Renk
+                    {t('notes.color')}
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     {['#7c3aed', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#111827'].map(
@@ -600,7 +606,7 @@ export default function Notes(): React.JSX.Element {
 
                 <div className="mb-6">
                   <div className={['text-xs mb-2', isLight ? 'text-black/50' : 'text-white/40', 'select-none'].join(' ')}>
-                    Kategori
+                    {t('categories.label')}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -616,7 +622,7 @@ export default function Notes(): React.JSX.Element {
                             : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10'
                       }`}
                     >
-                      (Yok)
+                      {t('categories.none')}
                     </button>
                     {noteCategories
                       .filter((c) => c.id !== DONE_CATEGORY_ID)
@@ -668,7 +674,7 @@ export default function Notes(): React.JSX.Element {
             ].join(' ')}
           >
             <div className={['text-lg font-semibold', isLight ? 'text-black' : 'text-white'].join(' ')}>
-              <span className='select-none' >Kategoriler</span>
+              <span className="select-none">{t('categories.title')}</span>
             </div>
             <button
               type="button"
@@ -679,7 +685,7 @@ export default function Notes(): React.JSX.Element {
                   ? 'border-black/10 bg-black/5 hover:bg-black/10'
                   : 'border-white/10 bg-white/5 hover:bg-white/10'
               ].join(' ')}
-              title="Kapat"
+              title={t('common.close')}
             >
               <X size={18} />
             </button>
@@ -687,7 +693,7 @@ export default function Notes(): React.JSX.Element {
 
           <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-6">
             <div className={['text-xs mb-3', isLight ? 'text-black/50' : 'text-white/40 select-none'].join(' ')}>
-              Yeni kategori ekleyebilirsiniz.
+              {t('categories.addHint')}
             </div>
 
             <div
@@ -704,12 +710,12 @@ export default function Notes(): React.JSX.Element {
                   'w-11 h-11 rounded-xl border p-1',
                   isLight ? 'border-black/10 bg-white' : 'border-white/10 bg-white/5'
                 ].join(' ')}
-                title="Kategori rengi"
+                title={t('categories.color')}
               />
               <input
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="Kategori adı (Örn: x, x...)"
+                placeholder={t('categories.namePlaceholder')}
                 className={[
                   'flex-1 px-3 py-2 rounded-xl border text-sm outline-none',
                   isLight
@@ -733,14 +739,14 @@ export default function Notes(): React.JSX.Element {
                 ].join(' ')}
               >
                 <Plus size={18} />
-                <span className={"select-none"}>Add</span>
+                <span className="select-none">{t('common.add')}</span>
               </button>
             </div>
 
             {noteCategories.length > 0 ? (
               <div className="mt-5">
                 <div className={['text-xs mb-2', isLight ? 'text-black/50' : 'text-white/40', 'select-none'].join(' ')}>
-                  Mevcut kategoriler
+                  {t('categories.existing')}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {noteCategories.map((c) => (
@@ -772,13 +778,13 @@ export default function Notes(): React.JSX.Element {
                               ? 'hover:bg-red-500/10 hover:border-red-500/20'
                               : 'hover:bg-red-500/15 hover:border-red-500/30'
                           ].join(' ')}
-                          title="Sil"
+                          title={t('common.delete')}
                         >
                           <Trash2 size={14} className={isLight ? 'text-black/50' : 'text-white/50'} />
                         </button>
                       ) : (
                         <span className={['ml-2 text-[11px]', isLight ? 'text-black/40' : 'text-white/35', 'select-none'].join(' ')}>
-                          (default)
+                          {t('categories.default')}
                         </span>
                       )}
                     </div>

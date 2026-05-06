@@ -3,6 +3,10 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 declare global {
   interface Window {
     electron: ElectronAPI
+    electronAPI?: {
+      getConfig: (key: string) => Promise<unknown>
+      setConfig: (key: string, value: unknown) => Promise<unknown>
+    }
     api: {
       getStoreData: (key?: string) => Promise<unknown>
       setStoreData: (key: string, value: unknown) => Promise<unknown>

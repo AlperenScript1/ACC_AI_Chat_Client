@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import CommandPalette from './components/CommandPalette'
 import { ConfigRecoveryBanner } from './components/ConfigRecoveryBanner'
 import { ModelWebview, type WebviewLike } from './components/ModelWebview'
@@ -17,19 +18,21 @@ import { normalizeModel } from './types'
 import pkg from '../../../package.json'
 
 function Welcome(): React.JSX.Element {
+  const { t } = useTranslation()
   return (
     <div className="h-full w-full flex flex-col">
       <div className="flex-1 w-full flex items-center justify-center">
         <div className="text-center px-6">
           <div className="text-xs tracking-widest text-black/50 dark:text-white/40 uppercase select-none">
-            ACC - AI Chat Client
+            {t('app.brand')}
           </div>
           <div className="mt-3 text-2xl sm:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-black via-black/70 to-black/40 dark:from-white dark:via-white/80 dark:to-white/40 select-none">
-            Başlamak için bir model seçin
+            {t('app.welcomeTitle')}
           </div>
           <div className="mt-3 text-sm text-black/60 dark:text-white/45 select-none">
-            Soldaki <span className="text-black/80 dark:text-white/70 font-semibold">+</span> ile bir
-            model ekleyin.
+            {t('app.welcomeHintPrefix')}{' '}
+            <span className="text-black/80 dark:text-white/70 font-semibold">+</span>{' '}
+            {t('app.welcomeHintSuffix')}
           </div>
         </div>
       </div>
@@ -38,7 +41,7 @@ function Welcome(): React.JSX.Element {
         <span className="relative inline-block px-3 py-1">
           <span className="acc-electron-bloom" />
           <span className="relative">
-            Power by <i>Electron & React</i>
+            {t('app.poweredBy')}
           </span>
         </span>
       </div>
@@ -47,6 +50,7 @@ function Welcome(): React.JSX.Element {
 }
 
 function App(): React.JSX.Element {
+  const { t } = useTranslation()
   const [paletteOpen, setPaletteOpen] = useState(false)
 
   const addedModels = useStore((s) => s.addedModels)
@@ -225,7 +229,7 @@ function App(): React.JSX.Element {
         <main className="flex-1 h-screen bg-[#f5f5f5] dark:bg-[#050505] overflow-hidden">
           <div className="absolute left-20 top-3 z-40 text-[11px] tracking-wide text-black/40 dark:text-white/30 select-none">
             v{pkg.version} <span className="mx-1">•</span>{' '}
-            <span style={{ color: 'red' }}>Pre-Alpha</span>
+            <span style={{ color: 'red' }}>{t('app.preAlpha')}</span>
           </div>
           <div className={`relative flex-1 h-screen overflow-hidden ${isSyncEnabled ? 'pb-14' : ''}`}>
             {activeModelId === 'market' ? <ModelMarket /> : null}

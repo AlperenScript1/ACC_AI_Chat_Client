@@ -1,0 +1,147 @@
+{
+  "common": {
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "add": "Ekle",
+    "rename": "Yeniden Adlandır",
+    "confirm": "Onayla",
+    "yes": "Evet",
+    "no": "Hayır",
+    "ok": "Tamam",
+    "close": "Kapat",
+    "loading": "Yükleniyor...",
+    "error": "Bir şeyler yanlış gitti. Lütfen tekrar deneyin.",
+    "areYouSure": "Emin misiniz?",
+    "actionCannotBeUndone": "Bu işlem geri alınamaz."
+  },
+  "sidebar": {
+    "home": "Ana Sayfa",
+    "notes": "Not Defteri",
+    "addModel": "Model Ekle",
+    "syncMode": "Sync Modu",
+    "sleepModeSuffix": "(Uyku Modu)",
+    "delete": "Sil"
+  },
+  "contextMenu": {
+    "addToFavorites": "Favorilere Ekle",
+    "removeFromFavorites": "Favorilerden Çıkart",
+    "delete": "Sil",
+    "close": "Kapat"
+  },
+  "notes": {
+    "title": "Notlar",
+    "subtitle": "Kartları sürükleyerek sıralayabilirsiniz. Not içine girince tam sayfa açılır.",
+    "newNote": "Yeni Not",
+    "untitled": "Yeni Not",
+    "contentPlaceholder": "Not içeriği...",
+    "toggleDone": "Yapıldı / Yapılmadı",
+    "filtersAll": "Hepsi",
+    "filtersHint": "Buradan kategori seçerek notları filtreleyebilirsiniz. Birden fazla kategori seçebilirsiniz.",
+    "emptyPrefix": "Henüz not yok. Sağ üstten",
+    "emptySuffix": "ile oluşturabilirsiniz.",
+    "titlePlaceholder": "(Başlık)",
+    "done": "Yapıldı",
+    "notDone": "Yapılmadı",
+    "sidebarTitle": "Ayarlar",
+    "color": "Renk"
+  },
+  "categories": {
+    "title": "Kategoriler",
+    "open": "Kategorileri aç",
+    "label": "Kategori",
+    "none": "(yok)",
+    "addHint": "Yeni kategori ekleyebilirsiniz.",
+    "color": "Kategori rengi",
+    "namePlaceholder": "Kategori adı (Örn: İş, Kişisel...)",
+    "existing": "Mevcut kategoriler",
+    "default": "(varsayılan)"
+  },
+  "sync": {
+    "needSelectModel": "Sync modu için en az bir model seçmelisiniz",
+    "selectFromSidebar": "Sidebar'dan model seç",
+    "sendToSelected": "Seçili modellere gönder...",
+    "send": "Gönder",
+    "selectedCount": "{{count}} model seçili"
+  },
+  "market": {
+    "title": "AI Model Mağazası",
+    "searchPlaceholder": "Model ara...",
+    "open": "Aç",
+    "added": "Eklendi",
+    "add": "Ekle",
+    "categories": {
+      "all": "Hepsi",
+      "chat": "Sohbet",
+      "coding": "Kodlama",
+      "research": "Araştırma",
+      "visual": "Görsel"
+    },
+    "items": {
+      "chatgpt": { "desc": "OpenAI'nin güçlü dil modeli", "category": "chat" },
+      "claude": { "desc": "Anthropic'in analitik asistanı", "category": "coding" },
+      "gemini": { "desc": "Google'ın çok modlu yapay zekası", "category": "research" },
+      "perplexity": { "desc": "Gerçek zamanlı web araştırması", "category": "research" },
+      "copilot": { "desc": "Kod tamamlama ve inceleme", "category": "coding" },
+      "midjourney": { "desc": "Görsel oluşturma platformu", "category": "visual" },
+      "ideogram": { "desc": "Metin destekli görsel üretimi", "category": "visual" },
+      "mistral": { "desc": "Avrupa'nın açık kaynak modeli", "category": "chat" },
+      "grok": { "desc": "xAI'nin gerçek zamanlı asistanı", "category": "chat" },
+      "deepseek": { "desc": "Çin'in öne çıkan açık kaynak modeli", "category": "coding" },
+      "poe": { "desc": "Çoklu model erişim platformu", "category": "chat" },
+      "suno": { "desc": "Yapay zeka ile müzik üretimi", "category": "visual" }
+    }
+  },
+  "configRecovery": {
+    "title": "Yapılandırma dosyası yeniden oluşturuldu",
+    "body": "config.json bulunamadığı veya bozuk olduğu için varsayılan ayarlarla otomatik olarak yeniden oluşturuldu. Önceki ayarlarınız kaybolmuş olabilir."
+  },
+  "app": {
+    "brand": "ACC - AI Chat Client",
+    "welcomeTitle": "Başlamak için bir model seçin",
+    "welcomeHintPrefix": "Soldaki",
+    "welcomeHintSuffix": "ile bir model ekleyin.",
+    "poweredBy": "Electron & React ile güçlendirildi",
+    "preAlpha": "Pre-Alpha"
+  },
+  "settings": {
+    "language": "Dil / Language",
+    "languageSelect": "Dil Seçin",
+    "notesShortcutTitle": "Not Defteri kısayolu",
+    "notesShortcutDesc": "Not Defteri sayfasını açar. Değiştirmek için buraya tıklayıp yeni kısayola basın."
+    ,
+    "title": "Ayarlar",
+    "openSettings": "Ayarları aç",
+    "sectionGeneral": "Genel",
+    "sectionAppearance": "Görünüm",
+    "sectionWindow": "Pencere",
+    "sectionShortcuts": "Kısayollar",
+    "sectionDanger": "Tehlikeli işlemler",
+    "theme": "Tema",
+    "themeLight": "Açık",
+    "themeDark": "Koyu",
+    "animations": "Animasyonlar",
+    "stateOn": "Açık",
+    "stateOff": "Kapalı",
+    "windowBounds": "Pencere boyutunu kilitle",
+    "windowBoundsHint": "Etkinleştirildiğinde pencere minimum boyutun altına küçültülemez.",
+    "searchShortcut": "Arama kısayolu",
+    "searchShortcutDesc": "Değiştirmek için alana tıklayıp yeni kısayola basın.",
+    "homeShortcut": "Ana sayfa kısayolu",
+    "homeShortcutDesc": "Değiştirmek için alana tıklayıp yeni kısayola basın.",
+    "resetShortcut": "Sıfırla",
+    "autoClose": "Otomatik kapatma",
+    "autoCloseDesc": "Bu süre sonunda etkin model uyku moduna alınır (0 = kapalı).",
+    "autoClose10m": "10 dk",
+    "autoClose30m": "30 dk",
+    "autoClose60m": "60 dk",
+    "autoClose120m": "120 dk",
+    "autoClose180m": "180 dk",
+    "autoCloseOff": "Kapalı",
+    "deleteData": "Tüm Verileri Sil",
+    "deleteDataDesc": "Tüm notları ve kategorileri kalıcı olarak sil",
+    "deleteDataConfirm": "Tüm verileriniz kalıcı olarak silinecek. Onaylamak için SİL yazın.",
+    "securityInfo": "Verileriniz yalnızca cihazınızda yerel olarak saklanır."
+  }
+}
+

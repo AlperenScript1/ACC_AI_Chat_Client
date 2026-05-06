@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useStore } from '../store/useStore'
 
 type SyncInputProps = {
@@ -7,6 +8,7 @@ type SyncInputProps = {
 }
 
 export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.Element | null {
+  const { t } = useTranslation()
   const [value, setValue] = useState('')
   const [toastOpen, setToastOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -71,7 +73,7 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
           ${toastOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}`}
       >
         <div className="rounded-xl border border-[#47848F]/25 bg-[#47848F]/10 text-[#0b2a30] px-4 py-3 shadow-lg dark:border-[#47848F]/25 dark:bg-[#47848F]/10 dark:text-[#9fe3ee]">
-          <div className="text-xs font-medium">Sync modu için en az bir model seçmelisiniz</div>
+          <div className="text-xs font-medium">{t('sync.needSelectModel')}</div>
         </div>
       </div>
 
@@ -89,7 +91,7 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
               if (e.key !== 'Enter') return
               trySend()
             }}
-            placeholder={!canSend ? "Sidebar'dan model seç" : 'Seçili modellere gönder...'}
+            placeholder={!canSend ? t('sync.selectFromSidebar') : t('sync.sendToSelected')}
             className="bg-transparent flex-1 text-sm outline-none focus-visible:outline-none focus-visible:ring-0 text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/20"
           />
 
@@ -107,7 +109,7 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
                 : 'opacity-0 translate-x-2 pointer-events-none'
             ].join(' ')}
           >
-            Gönder
+            {t('sync.send')}
           </button>
         </div>
       <div className="flex items-center gap-2 shrink-0 select-none">
@@ -123,7 +125,7 @@ export default function SyncInput({ open, onSend }: SyncInputProps): React.JSX.E
             />
           ))}
         <span className="text-xs text-white/20 dark:text-white/20 text-black/30 whitespace-nowrap select-none">
-          {selectedModels.length} model seçili
+          {t('sync.selectedCount', { count: selectedModels.length })}
         </span>
       </div>
       </div>

@@ -1,13 +1,11 @@
 import { Settings as SettingsIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
+import i18n from '../i18n/config'
 import type { ThemeMode } from '../store/useStore'
 import { useStore } from '../store/useStore'
-import {
-  getSettingsUiCopy,
-  sleepSelectOptions,
-  type SettingsUiCopy,
-  type SleepSelectOption
-} from '../locales/settingsUi'
+import { type SleepSelectOption } from '../locales/settingsUi'
 import {
   DEFAULT_HOME_SHORTCUT,
   DEFAULT_NOTES_SHORTCUT,
@@ -15,7 +13,8 @@ import {
   shortcutFromEvent
 } from '../lib/shortcut'
 
-function ResetDataSection({ t }: { t: SettingsUiCopy }): React.JSX.Element {
+function ResetDataSection(): React.JSX.Element {
+  const { t } = useTranslation()
   const [step, setStep] = useState<'idle' | 'confirm' | 'warning'>('idle')
 
   const handleFinalConfirm = async (): Promise<void> => {
@@ -32,13 +31,15 @@ function ResetDataSection({ t }: { t: SettingsUiCopy }): React.JSX.Element {
           onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(239,68,68,0.1)')}
           onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
         >
-          {t.dangerDeleteAll}
+          {t('settings.deleteData')}
         </button>
       )}
 
       {step === 'confirm' && (
         <div className="mt-3 rounded-md border border-red-500/20 p-3">
-          <div className="text-xs text-black/70 dark:text-white/70">{t.dangerConfirmBody}</div>
+          <div className="text-xs text-black/70 dark:text-white/70">
+            {t('settings.deleteDataDesc')}
+          </div>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
@@ -54,14 +55,14 @@ function ResetDataSection({ t }: { t: SettingsUiCopy }): React.JSX.Element {
                 cursor: 'pointer'
               }}
             >
-              {t.dangerCancel}
+              {t('common.cancel')}
             </button>
             <button
               type="button"
               onClick={() => setStep('warning')}
               className="flex-1 px-2 py-2 rounded-md bg-red-600 text-white text-[13px]"
             >
-              {t.dangerDelete}
+              {t('common.delete')}
             </button>
           </div>
         </div>
@@ -69,7 +70,9 @@ function ResetDataSection({ t }: { t: SettingsUiCopy }): React.JSX.Element {
 
       {step === 'warning' && (
         <div className="mt-3 rounded-md border border-red-500/20 p-3">
-          <div className="text-xs text-black/70 dark:text-white/70">{t.dangerWarningBody}</div>
+          <div className="text-xs text-black/70 dark:text-white/70">
+            {t('settings.deleteDataConfirm')}
+          </div>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
@@ -85,14 +88,14 @@ function ResetDataSection({ t }: { t: SettingsUiCopy }): React.JSX.Element {
                 cursor: 'pointer'
               }}
             >
-              {t.dangerCancel}
+              {t('common.cancel')}
             </button>
             <button
               type="button"
               onClick={handleFinalConfirm}
               className="flex-1 px-2 py-2 rounded-md bg-red-600 text-white text-[13px]"
             >
-              {t.dangerConfirmClose}
+              {t('common.confirm')}
             </button>
           </div>
         </div>
@@ -161,8 +164,7 @@ function SettingsPanel({
   animationsEnabled: boolean
   onClose: () => void
 }): React.JSX.Element {
-  const settingsUiLocale = useStore((s) => s.settingsUiLocale)
-  const t = getSettingsUiCopy(settingsUiLocale)
+  const { t } = useTranslation()
 
   const theme = useStore((s) => s.theme)
   const autoCloseTimeout = useStore((s) => s.autoCloseTimeout)
@@ -195,10 +197,22 @@ function SettingsPanel({
     }
   }, [])
 
+  const handleLanguageChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ): Promise<void> => {
+    const newLang = e.target.value
+    i18n.changeLanguage(newLang)
+    try {
+      await window.api?.setStoreData?.('language', newLang)
+    } catch {
+      // ignore
+    }
+  }
+
   return (
     <div
       className={[
-        'absolute right-0 top-0 h-screen w-72 z-50 p-5 flex flex-col gap-6 overflow-y-auto',
+        'fixed right-0 top-0 h-screen w-72 z-[10000] p-5 flex flex-col gap-6 overflow-y-auto',
         '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
         'bg-[#f5f5f5] dark:bg-[#0f0f0f] border-l border-black/5 dark:border-white/5',
         animationsEnabled ? 'transition-all duration-150 ease-out' : '',
@@ -206,7 +220,7 @@ function SettingsPanel({
       ].join(' ')}
     >
       <div className="flex justify-between items-center">
-        <span className="text-sm font-medium text-black dark:text-white">{t.panelTitle}</span>
+        <span className="text-sm font-medium text-black dark:text-white">{t('settings.title')}</span>
         <button
           type="button"
           onClick={onClose}
@@ -216,9 +230,24 @@ function SettingsPanel({
         </button>
       </div>
 
-      <SettingsSection title={t.sectionAppearance}>
+      <SettingsSection title={t('settings.sectionGeneral')}>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-black/40 dark:text-white/40">{t.theme}</label>
+          <label className="text-xs text-black/40 dark:text-white/40">{t('settings.language')}</label>
+          <select
+            value={i18n.language}
+            onChange={handleLanguageChange}
+            aria-label={t('settings.languageSelect')}
+            className="bg-white border border-black/10 text-black/80 text-xs rounded px-3 py-2 dark:bg-[#1a1a1a] dark:border-white/5 dark:text-white/70"
+          >
+            <option value="en">English</option>
+            <option value="tr">Türkçe</option>
+          </select>
+        </div>
+      </SettingsSection>
+
+      <SettingsSection title={t('settings.sectionAppearance')}>
+        <div className="flex flex-col gap-2">
+          <label className="text-xs text-black/40 dark:text-white/40">{t('settings.theme')}</label>
           <div className="flex gap-2">
             {(['dark', 'light'] as const).map((th) => (
               <button
@@ -232,14 +261,16 @@ function SettingsPanel({
                 : 'bg-transparent border-black/5 text-black/40 hover:border-black/10 dark:border-white/5 dark:text-white/40 dark:hover:border-white/10'
             }`}
               >
-                {th === 'dark' ? t.themeDark : t.themeLight}
+                {th === 'dark' ? t('settings.themeDark') : t('settings.themeLight')}
               </button>
             ))}
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-black/40 dark:text-white/40">{t.animations}</label>
+          <label className="text-xs text-black/40 dark:text-white/40">
+            {t('settings.animations')}
+          </label>
           <button
             type="button"
             onClick={() => setAnimationsEnabled(!animationsEnabled)}
@@ -249,14 +280,16 @@ function SettingsPanel({
                 : 'bg-transparent border-black/10 text-black/60 dark:border-white/10 dark:text-white/60'
             }`}
           >
-            {animationsEnabled ? t.stateOn : t.stateOff}
+            {animationsEnabled ? t('settings.stateOn') : t('settings.stateOff')}
           </button>
         </div>
       </SettingsSection>
 
-      <SettingsSection title={t.sectionWindow}>
+      <SettingsSection title={t('settings.sectionWindow')}>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-black/40 dark:text-white/40">{t.windowBounds}</label>
+          <label className="text-xs text-black/40 dark:text-white/40">
+            {t('settings.windowBounds')}
+          </label>
           <button
             type="button"
             onClick={async () => {
@@ -275,15 +308,19 @@ function SettingsPanel({
                 : 'bg-transparent border-black/10 text-black/60 dark:border-white/10 dark:text-white/60'
             }`}
           >
-            {windowBoundsLocked ? t.stateOn : t.stateOff}
+            {windowBoundsLocked ? t('settings.stateOn') : t('settings.stateOff')}
           </button>
-          <p className="text-[10px] text-black/35 dark:text-white/35 leading-snug">{t.windowBoundsHint}</p>
+          <p className="text-[10px] text-black/35 dark:text-white/35 leading-snug">
+            {t('settings.windowBoundsHint')}
+          </p>
         </div>
       </SettingsSection>
 
-      <SettingsSection title={t.sectionShortcuts}>
+      <SettingsSection title={t('settings.sectionShortcuts')}>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-black/40 dark:text-white/40">{t.searchShortcut}</label>
+          <label className="text-xs text-black/40 dark:text-white/40">
+            {t('settings.searchShortcut')}
+          </label>
           <input
             value={searchShortcut}
             readOnly
@@ -298,20 +335,22 @@ function SettingsPanel({
           />
           <div className="flex justify-between items-end gap-2">
             <div className="text-[10px] text-black/35 dark:text-white/35 leading-snug flex-1 min-w-0">
-              {t.searchShortcutHint}
+              {t('settings.searchShortcutDesc')}
             </div>
             <button
               type="button"
               onClick={() => setSearchShortcut(DEFAULT_SEARCH_SHORTCUT)}
               className="shrink-0 text-[10px] font-medium text-red-600 dark:text-red-400 hover:underline"
             >
-              {t.resetShortcut}
+              {t('settings.resetShortcut')}
             </button>
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-black/40 dark:text-white/40">{t.homeShortcut}</label>
+          <label className="text-xs text-black/40 dark:text-white/40">
+            {t('settings.homeShortcut')}
+          </label>
           <input
             value={homeShortcut}
             readOnly
@@ -326,20 +365,22 @@ function SettingsPanel({
           />
           <div className="flex justify-between items-end gap-2">
             <div className="text-[10px] text-black/35 dark:text-white/35 leading-snug flex-1 min-w-0">
-              {t.homeShortcutHint}
+              {t('settings.homeShortcutDesc')}
             </div>
             <button
               type="button"
               onClick={() => setHomeShortcut(DEFAULT_HOME_SHORTCUT)}
               className="shrink-0 text-[10px] font-medium text-red-600 dark:text-red-400 hover:underline"
             >
-              {t.resetShortcut}
+              {t('settings.resetShortcut')}
             </button>
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-black/40 dark:text-white/40">Not Defteri Kısayolu</label>
+          <label className="text-xs text-black/40 dark:text-white/40">
+            {t('settings.notesShortcutTitle')}
+          </label>
           <input
             value={notesShortcut}
             readOnly
@@ -354,14 +395,14 @@ function SettingsPanel({
           />
           <div className="flex justify-between items-end gap-2">
             <div className="text-[10px] text-black/35 dark:text-white/35 leading-snug flex-1 min-w-0">
-              Not Defteri sayfasını açar. Değiştirmek için bu alana basıp yeni kısayolu yazın.
+              {t('settings.notesShortcutDesc')}
             </div>
             <button
               type="button"
               onClick={() => setNotesShortcut(DEFAULT_NOTES_SHORTCUT)}
               className="shrink-0 text-[10px] font-medium text-red-600 dark:text-red-400 hover:underline"
             >
-              {t.resetShortcut}
+              {t('settings.resetShortcut')}
             </button>
           </div>
         </div>
@@ -369,25 +410,31 @@ function SettingsPanel({
         <AutoCloseTimeoutSetting
           value={autoCloseTimeout}
           onChange={setAutoCloseTimeout}
-          title={t.sleepTitle}
-          description={t.sleepDescription}
-          options={sleepSelectOptions(settingsUiLocale)}
+          title={t('settings.autoClose')}
+          description={t('settings.autoCloseDesc')}
+          options={[
+            { value: 10, label: t('settings.autoClose10m') },
+            { value: 30, label: t('settings.autoClose30m') },
+            { value: 60, label: t('settings.autoClose60m') },
+            { value: 120, label: t('settings.autoClose120m') },
+            { value: 180, label: t('settings.autoClose180m') },
+            { value: 0, label: t('settings.autoCloseOff') }
+          ]}
         />
       </SettingsSection>
 
-      <SettingsSection title={t.sectionDanger}>
-        <ResetDataSection t={t} />
+      <SettingsSection title={t('settings.sectionDanger')}>
+        <ResetDataSection />
       </SettingsSection>
     </div>
   )
 }
 
 export default function Settings(): React.JSX.Element {
+  const { t } = useTranslation()
   const animationsEnabled = useStore((s) => s.animationsEnabled)
   const isSettingsOpen = useStore((s) => s.isSettingsOpen)
   const setIsSettingsOpen = useStore((s) => s.setIsSettingsOpen)
-  const settingsUiLocale = useStore((s) => s.settingsUiLocale)
-  const tGear = getSettingsUiCopy(settingsUiLocale)
 
   const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -458,18 +505,25 @@ export default function Settings(): React.JSX.Element {
             'transition',
             'hover:shadow-[0_0_24px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_0_24px_rgba(255,255,255,0.18)]'
           ].join(' ')}
-          title={tGear.gearTitle}
-          aria-label={tGear.gearAria}
+          title={t('settings.openSettings')}
+          aria-label={t('settings.openSettings')}
         >
           <SettingsIcon className="mx-auto text-black/70 dark:text-white/80" size={18} />
         </button>
       </div>
 
       {mounted ? (
-        <>
-          <div className="fixed inset-0 z-40" onClick={closePanel} />
-          <SettingsPanel visible={visible} animationsEnabled={animationsEnabled} onClose={closePanel} />
-        </>
+        createPortal(
+          <>
+            <div className="fixed inset-0 z-[9999]" onClick={closePanel} />
+            <SettingsPanel
+              visible={visible}
+              animationsEnabled={animationsEnabled}
+              onClose={closePanel}
+            />
+          </>,
+          document.body
+        )
       ) : null}
     </>
   )

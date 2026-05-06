@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
 // Whitelist of valid IPC channels renderer may invoke
-const INVOKE_CHANNELS = ['get-store-data', 'set-store-data', 'reset-store'] as const
+const INVOKE_CHANNELS = ['get-store-data', 'set-store-data', 'reset-store', 'get-config', 'set-config'] as const
 const SEND_CHANNELS = ['quit-app'] as const
 
 void INVOKE_CHANNELS
@@ -42,4 +42,9 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.on('navigate-home', callback)
     return () => ipcRenderer.removeAllListeners('navigate-home')
   }
+})
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  getConfig: (key: string) => ipcRenderer.invoke('get-config', key),
+  setConfig: (key: string, value: unknown) => ipcRenderer.invoke('set-config', key, value)
 })

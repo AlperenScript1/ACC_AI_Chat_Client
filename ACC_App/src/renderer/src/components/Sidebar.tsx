@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useTranslation } from 'react-i18next'
 import { useStore } from '../store/useStore'
 import Settings from './Settings'
 
@@ -55,6 +56,7 @@ function SortableModelItem({
   onToggleSyncSelected: () => void
   onContextMenu: (e: React.MouseEvent) => void
 }): React.JSX.Element {
+  const { t } = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -65,7 +67,7 @@ function SortableModelItem({
     <div ref={setNodeRef} style={style}>
       <button
         type="button"
-        title={isAsleep ? `${name} (Uyku Modu)` : name}
+        title={isAsleep ? `${name} ${t('sidebar.sleepModeSuffix')}` : name}
         onClick={onClick}
         onContextMenu={onContextMenu}
         className={[
@@ -117,6 +119,8 @@ function SortableModelItem({
 }
 
 export default function Sidebar(): React.JSX.Element {
+  const { t } = useTranslation()
+
   const addedModels = useStore((s) => s.addedModels)
   const activeModelId = useStore((s) => s.activeModelId)
   const setActiveModelId = useStore((s) => s.setActiveModelId)
@@ -178,8 +182,8 @@ export default function Sidebar(): React.JSX.Element {
               ? 'ring-2 ring-black/30 dark:ring-white/50 shadow-[0_0_18px_rgba(0,0,0,0.10)] dark:shadow-[0_0_18px_rgba(255,255,255,0.12)]'
               : ''
           ].join(' ')}
-          title="Home"
-          aria-label="Home"
+          title={t('sidebar.home')}
+          aria-label={t('sidebar.home')}
         >
           <Home className="mx-auto text-black/70 dark:text-white/80" size={18} />
         </button>
@@ -296,7 +300,9 @@ export default function Sidebar(): React.JSX.Element {
                 setMenu((m) => ({ ...m, open: false, id: null }))
               }}
             >
-              {contextModel?.isFavorite === true ? 'Favorilerden Çıkart' : 'Favorilere Ekle'}
+              {contextModel?.isFavorite === true
+                ? t('contextMenu.removeFromFavorites')
+                : t('contextMenu.addToFavorites')}
             </button>
             <button
               type="button"
@@ -306,7 +312,7 @@ export default function Sidebar(): React.JSX.Element {
                 setMenu((m) => ({ ...m, open: false, id: null }))
               }}
             >
-              Delete
+              {t('contextMenu.delete')}
             </button>
           </div>
         ) : null}
@@ -330,8 +336,8 @@ export default function Sidebar(): React.JSX.Element {
                 ? 'ring-2 ring-black/30 dark:ring-white/50 shadow-[0_0_18px_rgba(0,0,0,0.10)] dark:shadow-[0_0_18px_rgba(255,255,255,0.12)]'
                 : ''
             ].join(' ')}
-            title="Not Defteri"
-            aria-label="Not Defteri"
+            title={t('sidebar.notes')}
+            aria-label={t('sidebar.notes')}
           >
             <NotebookPen className="mx-auto text-black/70 dark:text-white/80" size={18} />
           </button>
@@ -353,8 +359,8 @@ export default function Sidebar(): React.JSX.Element {
                 : '',
               'hover:shadow-[0_0_24px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_0_24px_rgba(255,255,255,0.18)]'
             ].join(' ')}
-            title="Model Ekle"
-            aria-label="Model Ekle"
+            title={t('sidebar.addModel')}
+            aria-label={t('sidebar.addModel')}
           >
             <Plus className="mx-auto text-black/70 dark:text-white/80" size={18} />
           </button>
@@ -374,8 +380,8 @@ export default function Sidebar(): React.JSX.Element {
                 ? 'text-black/40 hover:text-black/60'
                 : 'text-white/20 hover:text-white/40'
           }`}
-            title="Sync Mode"
-            aria-label="Sync Mode"
+            title={t('sidebar.syncMode')}
+            aria-label={t('sidebar.syncMode')}
           >
             <Zap size={18} fill={isSyncEnabled ? 'currentColor' : 'none'} />
           </button>
