@@ -9,7 +9,7 @@
 ### 🔍 Quick Search & Shortcuts
 Easily find and switch between your favorite AI providers with the built-in search bar and customizable shortcuts. Designed for a fast, keyboard-centric workflow.
 
-<img src="resim.png" alt="Görsel yüklenemedi. Sayfayı yenileyin veya daha sonra tekrar deneyin.">
+<img src="https://github.com/user-attachments/assets/400f062f-4103-4ddd-9f32-f940d7656ee4" alt="Fail load">
 
 ---
 
