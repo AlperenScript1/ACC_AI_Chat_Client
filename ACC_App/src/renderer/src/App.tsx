@@ -138,7 +138,8 @@ function App(): React.JSX.Element {
                 icon: typeof m.icon === 'string' ? m.icon : undefined,
                 isFavorite: Boolean(m.isFavorite),
                 lastActive: typeof m.lastActive === 'number' ? m.lastActive : undefined,
-                isAsleep: typeof m.isAsleep === 'boolean' ? m.isAsleep : undefined
+                // Always start existing models in sleep mode on app launch.
+                isAsleep: true
               })
             ).filter((m) => m.id && m.url)
           })
