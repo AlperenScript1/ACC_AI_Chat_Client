@@ -1,3 +1,4 @@
+
 # 🚀 ACC (AI Chat Client)
 
 **ACC** is a powerful desktop AI web-chat hub built with **Electron + React + TypeScript**. It allows you to manage multiple AI chat providers (ChatGPT, Claude, Gemini, Perplexity, etc.) inside isolated, high-performance tabs. This project focuses on a "Privacy First" approach: it does **not** require API keys. Instead, it embeds official web UIs in secure Electron `webview` containers.
@@ -9,7 +10,7 @@
 ### 🔍 Quick Search & Shortcuts
 Easily find and switch between your favorite AI providers with the built-in search bar and customizable shortcuts. Designed for a fast, keyboard-centric workflow.
 
-<img src="https://github.com/user-attachments/assets/400f062f-4103-4ddd-9f32-f940d7656ee4" alt="Fail load">
+<img width="882" height="634" alt="Search" src="https://github.com/user-attachments/assets/e08de444-e30a-4608-aa89-0d050a0c0fb1" />
 
 ---
 
