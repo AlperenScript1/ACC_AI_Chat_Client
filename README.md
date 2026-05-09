@@ -85,6 +85,8 @@ npm run build:mac
 
 # Build for Linux
 npm run build:linux
+```
+
 ## ⚖️ Legal Disclaimer
 
 > [!IMPORTANT]
