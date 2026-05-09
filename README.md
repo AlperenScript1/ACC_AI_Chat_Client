@@ -39,7 +39,9 @@ Stay organized by taking notes while you chat. **ACC** features a persistent not
 *   **Persistence:** All notes are saved locally to your configuration.
 *   **Context-Aware:** Quickly access your notes regardless of which AI model you are currently using.
 
-<img width="630" height="450" alt="notes system" src="INSERT_YOUR_NOTES_GIF_HERE" />
+<img width="480" height="342" alt="not" src="https://github.com/user-attachments/assets/142750db-0c50-453a-9b0e-26ecdea7a047" />
+
+
 
 ---
 
@@ -51,7 +53,9 @@ Tailor the application to your specific needs with the integrated settings panel
 *   **⌨️ Shortcuts:** Customizable global shortcuts to fit your workflow.
 *   **🔒 Data Management:** Clear cache, reset configurations, or delete all local data easily.
 
-<img width="630" height="450" alt="settings" src="INSERT_YOUR_SETTINGS_GIF_HERE" />
+<img width="480" height="342" alt="settings" src="https://github.com/user-attachments/assets/7453659c-d0f2-4825-a63a-c4696aa566ca" />
+
+
 
 ---
 
@@ -81,7 +85,6 @@ npm run build:mac
 
 # Build for Linux
 npm run build:linux
-
 ## ⚖️ Legal Disclaimer
 
 > [!IMPORTANT]
