@@ -1,4 +1,3 @@
-
 # 🚀 ACC (AI Chat Client)
 
 **ACC** is a powerful desktop AI web-chat hub built with **Electron + React + TypeScript**. It allows you to manage multiple AI chat providers (ChatGPT, Claude, Gemini, Perplexity, etc.) inside isolated, high-performance tabs. This project focuses on a "Privacy First" approach: it does **not** require API keys. Instead, it embeds official web UIs in secure Electron `webview` containers.
@@ -32,16 +31,36 @@ The flagship feature of **ACC**. Write your message once and send it to all acti
 
 <img width="630" height="450" alt="sync" src="https://github.com/user-attachments/assets/fb6f5dec-f169-42c1-a613-7267f1eb1303" />
 
+---
 
+### 📝 Smart Note-Taking System
+Stay organized by taking notes while you chat. **ACC** features a persistent note-taking sidebar that allows you to jot down ideas, save prompts, or keep track of important information.
+
+*   **Persistence:** All notes are saved locally to your configuration.
+*   **Context-Aware:** Quickly access your notes regardless of which AI model you are currently using.
+
+<img width="630" height="450" alt="notes system" src="INSERT_YOUR_NOTES_GIF_HERE" />
+
+---
+
+### ⚙️ Personalized Settings & Customization
+Tailor the application to your specific needs with the integrated settings panel.
+
+*   **🌓 Themes:** Support for both Light and Dark modes.
+*   **🌍 Multi-Language:** Full localization support (English & Turkish).
+*   **⌨️ Shortcuts:** Customizable global shortcuts to fit your workflow.
+*   **🔒 Data Management:** Clear cache, reset configurations, or delete all local data easily.
+
+<img width="630" height="450" alt="settings" src="INSERT_YOUR_SETTINGS_GIF_HERE" />
 
 ---
 
 ## ⚙️ How it Works
 
-*   **Main Process:** Electron window management and IPC handled in `ACC_App/src/main/index.ts`.
-*   **Renderer:** Modern UI built with React located in `ACC_App/src/renderer/src/*`.
-*   **Isolated Sessions:** Each provider uses a persistent partition (`persist:acc`) to keep sessions and cookies secure on your local machine.
-*   **Sync Engine:** Executes lightweight scripts inside webviews to automate prompt delivery across different platforms.
+*    **Main Process:** Electron window management and IPC handled in `ACC_App/src/main/index.ts`.
+*    **Renderer:** Modern UI built with React located in `ACC_App/src/renderer/src/*`.
+*    **Isolated Sessions:** Each provider uses a persistent partition (`persist:acc`) to keep sessions and cookies secure on your local machine.
+*    **Sync Engine:** Executes lightweight scripts inside webviews to automate prompt delivery across different platforms.
 
 ---
 
@@ -62,8 +81,6 @@ npm run build:mac
 
 # Build for Linux
 npm run build:linux
-```
----
 
 ## ⚖️ Legal Disclaimer
 
