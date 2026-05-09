@@ -7,14 +7,6 @@
 
 ## 📺 Feature Showcases
 
-### 🔍 Quick Search & Shortcuts
-Easily find and switch between your favorite AI providers with the built-in search bar and customizable shortcuts. Designed for a fast, keyboard-centric workflow.
-
-<img width="480" height="342" alt="search" src="https://github.com/user-attachments/assets/0f170454-c294-489a-a320-5f23b94efaad" />
-
-
-
----
 
 ### 🛒 Model Market (Store)
 Browse a curated list of AI providers, add them to your dashboard with a single click, and manage your "Market" to keep only the tools you need. You can also reorder them via drag-and-drop to personalize your layout.
@@ -22,6 +14,13 @@ Browse a curated list of AI providers, add them to your dashboard with a single 
 <img width="480" height="344" alt="market add" src="https://github.com/user-attachments/assets/b2e9813b-03d1-41d4-9c67-4812f1e3e08b" />
 
 
+
+---
+
+### 🔍 Quick Search & Shortcuts
+Easily find and switch between your favorite AI providers with the built-in search bar and customizable shortcuts. Designed for a fast, keyboard-centric workflow.
+
+<img width="480" height="342" alt="search" src="https://github.com/user-attachments/assets/0f170454-c294-489a-a320-5f23b94efaad" />
 
 ---
 
