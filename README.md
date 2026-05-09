@@ -20,7 +20,7 @@ Browse a curated list of AI providers, add them to your dashboard with a single 
 ### 🔍 Quick Search & Shortcuts
 Easily find and switch between your favorite AI providers with the built-in search bar and customizable shortcuts. Designed for a fast, keyboard-centric workflow.
 
-<img width="480" height="342" alt="search" src="https://github.com/user-attachments/assets/0f170454-c294-489a-a320-5f23b94efaad" />
+<img width="630" height="450" alt="search" src="https://github.com/user-attachments/assets/0f170454-c294-489a-a320-5f23b94efaad" />
 
 ---
 
@@ -30,7 +30,7 @@ The flagship feature of **ACC**. Write your message once and send it to all acti
 *   **Efficiency:** Compare different AI models side-by-side.
 *   **Automation:** Automatically detects input fields and triggers the "Send" action across providers.
 
-<img width="480" height="340" alt="sync" src="https://github.com/user-attachments/assets/fb6f5dec-f169-42c1-a613-7267f1eb1303" />
+<img width="630" height="450" alt="sync" src="https://github.com/user-attachments/assets/fb6f5dec-f169-42c1-a613-7267f1eb1303" />
 
 
 
