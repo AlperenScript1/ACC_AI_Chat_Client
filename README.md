@@ -39,7 +39,7 @@ Stay organized by taking notes while you chat. **ACC** features a persistent not
 *   **Persistence:** All notes are saved locally to your configuration.
 *   **Context-Aware:** Quickly access your notes regardless of which AI model you are currently using.
 
-<img width="480" height="342" alt="not" src="https://github.com/user-attachments/assets/142750db-0c50-453a-9b0e-26ecdea7a047" />
+<img width="630" height="450" alt="not" src="https://github.com/user-attachments/assets/142750db-0c50-453a-9b0e-26ecdea7a047" />
 
 
 
