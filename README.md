@@ -53,7 +53,7 @@ Tailor the application to your specific needs with the integrated settings panel
 *   **⌨️ Shortcuts:** Customizable global shortcuts to fit your workflow.
 *   **🔒 Data Management:** Clear cache, reset configurations, or delete all local data easily.
 
-<img width="480" height="342" alt="settings" src="https://github.com/user-attachments/assets/7453659c-d0f2-4825-a63a-c4696aa566ca" />
+<img width="630" height="450" alt="settings" src="https://github.com/user-attachments/assets/7453659c-d0f2-4825-a63a-c4696aa566ca" />
 
 
 
