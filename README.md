@@ -10,7 +10,8 @@
 ### 🔍 Quick Search & Shortcuts
 Easily find and switch between your favorite AI providers with the built-in search bar and customizable shortcuts. Designed for a fast, keyboard-centric workflow.
 
-<img width="882" height="634" alt="Search" src="https://github.com/user-attachments/assets/e08de444-e30a-4608-aa89-0d050a0c0fb1" />
+<img width="480" height="342" alt="search" src="https://github.com/user-attachments/assets/90c2fe21-49eb-4278-a398-11f44c0ba9d4" />
+
 
 ---
 
