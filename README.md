@@ -11,7 +11,7 @@
 ### 🛒 Model Market (Store)
 Browse a curated list of AI providers, add them to your dashboard with a single click, and manage your "Market" to keep only the tools you need. You can also reorder them via drag-and-drop to personalize your layout.
 
-<img width="480" height="344" alt="market add" src="https://github.com/user-attachments/assets/b2e9813b-03d1-41d4-9c67-4812f1e3e08b" />
+<img width="580" height="450" alt="market add" src="https://github.com/user-attachments/assets/b2e9813b-03d1-41d4-9c67-4812f1e3e08b" />
 
 
 
