@@ -125,7 +125,7 @@ export const useStore = create<StoreState>((set) => ({
       const now = Date.now()
       const next: Note = normalizeNote({
         id,
-        title: partial?.title ?? 'Yeni Not',
+        title: partial?.title ?? '',
         color: partial?.color ?? '#7c3aed',
         categoryIds: Array.isArray(partial?.categoryIds) ? partial?.categoryIds : [],
         content: '',

@@ -502,7 +502,7 @@ export default function Notes(): React.JSX.Element {
                   value={openNote.title}
                   onChange={(e) => updateNote(openNote.id, { title: e.target.value })}
                   className={[
-                    'w-full bg-transparent outline-none text-lg font-semibold',
+                    'w-full bg-transparent outline-none focus-visible:outline-none text-lg font-semibold',
                     isLight ? 'text-black placeholder:text-black/30' : 'text-white placeholder:text-white/20'
                   ].join(' ')}
                   placeholder={t('notes.titlePlaceholder')}
@@ -559,7 +559,7 @@ export default function Notes(): React.JSX.Element {
                   onChange={(e) => updateNote(openNote.id, { content: e.target.value })}
                   placeholder={t('notes.contentPlaceholder')}
                   className={[
-                    'w-full h-full min-h-[300px] resize-none bg-transparent outline-none text-sm leading-relaxed overflow-y-auto',
+                    'w-full h-full min-h-[300px] resize-none bg-transparent outline-none focus-visible:outline-none text-sm leading-relaxed overflow-y-auto',
                     '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
                     isLight ? 'text-black/90 placeholder:text-black/30' : 'text-white/90 placeholder:text-white/20'
                   ].join(' ')}
