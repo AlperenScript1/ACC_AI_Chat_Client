@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react'
+import { ExternalLink, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useStore } from '../store/useStore'
@@ -139,6 +139,19 @@ const CATALOG: CatalogItem[] = [
 const CATEGORIES = ['all', 'chat', 'coding', 'research', 'visual'] as const
 type MarketCategory = (typeof CATEGORIES)[number]
 
+function siteLabel(url: string): string {
+  try {
+    const host = new URL(url).hostname
+    return host.startsWith('www.') ? host.slice(4) : host
+  } catch {
+    return url
+  }
+}
+
+async function openOfficialSite(url: string): Promise<void> {
+  await window.api?.openExternal?.(url)
+}
+
 function ModelCard({
   item,
   added,
@@ -163,7 +176,15 @@ function ModelCard({
                  ${hovered ? 'scale-[1.02] border-white/10 dark:border-white/10' : ''}`}
     >
       <div className="flex items-center gap-3">
-        <img src={item.icon} className="w-10 h-10 rounded-xl object-cover" alt={item.name} />
+        <button
+          type="button"
+          onClick={() => void openOfficialSite(item.url)}
+          className="shrink-0 rounded-xl focus-visible:outline-none"
+          title={`${t('market.openInBrowser')}: ${item.url}`}
+          aria-label={`${t('market.openInBrowser')}: ${item.name}`}
+        >
+          <img src={item.icon} className="w-10 h-10 rounded-xl object-cover" alt="" />
+        </button>
         <div>
           <p className="text-sm font-medium text-slate-900 dark:text-white">{item.name}</p>
           <p className="text-xs text-slate-600 dark:text-slate-400">
@@ -175,6 +196,17 @@ function ModelCard({
       <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed flex-1">
         {t(item.descKey)}
       </p>
+
+      <button
+        type="button"
+        onClick={() => void openOfficialSite(item.url)}
+        className="flex items-center gap-1.5 text-left text-xs text-sky-600 dark:text-sky-400 hover:underline focus-visible:outline-none rounded"
+        title={t('market.openInBrowser')}
+      >
+        <ExternalLink size={14} className="shrink-0 opacity-80" aria-hidden />
+        <span className="font-medium">{t('market.officialWebsite')}</span>
+        <span className="text-slate-500 dark:text-slate-500 truncate">({siteLabel(item.url)})</span>
+      </button>
 
       <div className="flex gap-2">
         <button

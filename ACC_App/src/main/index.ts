@@ -363,6 +363,23 @@ app.whenReady().then(() => {
     return next
   })
 
+  ipcMain.handle('open-external', async (_event, raw: unknown) => {
+    if (typeof raw !== 'string' || raw.length === 0) return false
+    let parsed: URL
+    try {
+      parsed = new URL(raw)
+    } catch {
+      console.warn('[IPC] open-external: invalid URL')
+      return false
+    }
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      console.warn('[IPC] open-external: blocked protocol', parsed.protocol)
+      return false
+    }
+    await shell.openExternal(parsed.href)
+    return true
+  })
+
   // --- IPC Handlers (electron-store bridge) ---
   ipcMain.handle('get-store-data', (_event, key?: string) => {
     if (key !== undefined && !isAllowedKey(key)) {

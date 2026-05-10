@@ -68,6 +68,8 @@
     "title": "AI Model Store",
     "searchPlaceholder": "Search models...",
     "open": "Open",
+    "officialWebsite": "Official website",
+    "openInBrowser": "Open in browser",
     "added": "Added",
     "add": "Add",
     "categories": {

@@ -1,13 +1,22 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
 // Whitelist of valid IPC channels renderer may invoke
-const INVOKE_CHANNELS = ['get-store-data', 'set-store-data', 'reset-store', 'get-config', 'set-config'] as const
+const INVOKE_CHANNELS = [
+  'get-store-data',
+  'set-store-data',
+  'reset-store',
+  'get-config',
+  'set-config',
+  'open-external'
+] as const
 const SEND_CHANNELS = ['quit-app'] as const
 
 void INVOKE_CHANNELS
 void SEND_CHANNELS
 
 contextBridge.exposeInMainWorld('api', {
+  openExternal: (url: string) => ipcRenderer.invoke('open-external', url) as Promise<boolean>,
+
   getStoreData: (key?: string) => ipcRenderer.invoke('get-store-data', key),
 
   setStoreData: (key: string, value: unknown) => ipcRenderer.invoke('set-store-data', key, value),

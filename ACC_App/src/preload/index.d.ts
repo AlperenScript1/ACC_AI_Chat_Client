@@ -8,6 +8,7 @@ declare global {
       setConfig: (key: string, value: unknown) => Promise<unknown>
     }
     api: {
+      openExternal: (url: string) => Promise<boolean>
       getStoreData: (key?: string) => Promise<unknown>
       setStoreData: (key: string, value: unknown) => Promise<unknown>
       wasConfigRecreated: () => Promise<boolean>
