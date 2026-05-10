@@ -372,7 +372,12 @@ export const useStore = create<StoreState>((set) => ({
   setAutoCloseTimeout: (minutes) => {
     const next = normalizeAutoCloseTimeoutMinutes(minutes)
     void persistSettings({ autoCloseTimeout: next })
-    set({ autoCloseTimeout: next })
+    set((state) => {
+      if (next !== 0) return { autoCloseTimeout: next }
+      const addedModels = state.addedModels.map((m) => ({ ...m, isAsleep: false }))
+      void persistModels(addedModels)
+      return { autoCloseTimeout: next, addedModels }
+    })
   },
   setSettingsUiLocale: (locale) => {
     const next = isSettingsUiLocale(locale) ? locale : 'en'

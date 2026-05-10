@@ -96,6 +96,7 @@ function App(): React.JSX.Element {
   useEffect(() => {
     let cleanup: (() => void) | null = null
     ;(async (): Promise<void> => {
+      let autoCloseForHydration = useStore.getState().autoCloseTimeout
       try {
         const settings = await window.api.getSettings()
         if (settings?.homeHotkey) setHomeShortcut(settings.homeHotkey)
@@ -114,8 +115,9 @@ function App(): React.JSX.Element {
           })
         }
         if (typeof settings?.autoCloseTimeout === 'number') {
+          autoCloseForHydration = normalizeAutoCloseTimeoutMinutes(settings.autoCloseTimeout)
           useStore.setState({
-            autoCloseTimeout: normalizeAutoCloseTimeoutMinutes(settings.autoCloseTimeout)
+            autoCloseTimeout: autoCloseForHydration
           })
         }
         if (isSettingsUiLocale(settings?.settingsUiLocale)) {
@@ -129,6 +131,7 @@ function App(): React.JSX.Element {
         const models = await window.api.getModels()
         if (Array.isArray(models)) {
           const raw = models as Record<string, unknown>[]
+          const sleepOnLaunch = autoCloseForHydration !== 0
           useStore.setState({
             addedModels: raw.map((m) =>
               normalizeModel({
@@ -138,8 +141,7 @@ function App(): React.JSX.Element {
                 icon: typeof m.icon === 'string' ? m.icon : undefined,
                 isFavorite: Boolean(m.isFavorite),
                 lastActive: typeof m.lastActive === 'number' ? m.lastActive : undefined,
-                // Always start existing models in sleep mode on app launch.
-                isAsleep: true
+                isAsleep: sleepOnLaunch
               })
             ).filter((m) => m.id && m.url)
           })
