@@ -157,6 +157,9 @@ export default function Notes(): React.JSX.Element {
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
+  const displayCategoryName = (c: { id: string; name: string }): string =>
+    c.id === DONE_CATEGORY_ID ? t('categories.doneName') : c.name
+
   const [activeFilterIds, setActiveFilterIds] = useState<string[]>([])
   const [openNoteId, setOpenNoteId] = useState<string | null>(null)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
@@ -200,9 +203,10 @@ export default function Notes(): React.JSX.Element {
 
   const categoryMap = useMemo(() => {
     const m = new Map<string, { name: string; color: string }>()
-    for (const c of noteCategories) m.set(c.id, { name: c.name, color: c.color })
+    for (const c of noteCategories) m.set(c.id, { name: displayCategoryName(c), color: c.color })
     return m
-  }, [noteCategories])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [noteCategories, t])
 
   const filteredNotes = useMemo(() => {
     if (activeFilterIds.length === 0) return notes
@@ -338,7 +342,7 @@ export default function Notes(): React.JSX.Element {
                     style={{ backgroundColor: c.color }}
                     aria-hidden
                   />
-                  {c.name}
+                  {displayCategoryName(c)}
                 </span>
               </button>
             ))}
@@ -646,7 +650,7 @@ export default function Notes(): React.JSX.Element {
                           style={{ backgroundColor: c.color }}
                           aria-hidden
                         />
-                        {c.name}
+                        {displayCategoryName(c)}
                       </button>
                     ))}
                   </div>
@@ -766,7 +770,7 @@ export default function Notes(): React.JSX.Element {
                         aria-hidden
                       />
                       <span className={['text-xs', isLight ? 'text-black/80' : 'text-white/80'].join(' ')}>
-                        {c.name}
+                        {displayCategoryName(c)}
                       </span>
                       {c.id !== DONE_CATEGORY_ID ? (
                         <button

@@ -55,7 +55,8 @@
     "color": "Category color",
     "namePlaceholder": "Category name (e.g. Work, Personal...)",
     "existing": "Existing categories",
-    "default": "(default)"
+    "default": "(default)",
+    "doneName": "Completed"
   },
   "sync": {
     "needSelectModel": "For Sync mode you must select at least one model",

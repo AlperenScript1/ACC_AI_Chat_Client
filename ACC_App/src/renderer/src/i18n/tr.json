@@ -55,7 +55,8 @@
     "color": "Kategori rengi",
     "namePlaceholder": "Kategori adı (Örn: İş, Kişisel...)",
     "existing": "Mevcut kategoriler",
-    "default": "(varsayılan)"
+    "default": "(varsayılan)",
+    "doneName": "Tamamlananlar"
   },
   "sync": {
     "needSelectModel": "Sync modu için en az bir model seçmelisiniz",
