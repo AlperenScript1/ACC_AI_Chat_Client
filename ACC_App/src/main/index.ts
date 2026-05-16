@@ -10,6 +10,16 @@ const WINDOW_BOUNDS = {
   minHeight: 600
 } as const
 
+/** Must match webview partition in ModelWebview.tsx */
+const ACC_WEBVIEW_PARTITION = 'persist:acc'
+
+async function clearAccWebviewSession(): Promise<void> {
+  const ses = session.fromPartition(ACC_WEBVIEW_PARTITION)
+  await ses.clearStorageData()
+  await ses.clearCache()
+  await ses.clearAuthCache()
+}
+
 // Force Chromium caches into userData to avoid Windows permission/lock issues
 // (especially common in dev + webview partitions)
 try {
@@ -451,7 +461,7 @@ app.whenReady().then(() => {
   })
 
   let resetCooldown = false
-  ipcMain.handle('reset-store', () => {
+  ipcMain.handle('reset-store', async () => {
     if (resetCooldown) {
       console.warn('[IPC] reset-store called too rapidly, ignored')
       return false
@@ -460,6 +470,11 @@ app.whenReady().then(() => {
     setTimeout(() => {
       resetCooldown = false
     }, 5000)
+    try {
+      await clearAccWebviewSession()
+    } catch (err) {
+      console.error('[Session] Failed to clear ACC webview session:', err)
+    }
     store.clear()
     return true
   })

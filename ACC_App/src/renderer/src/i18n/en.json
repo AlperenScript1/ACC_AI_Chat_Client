@@ -142,7 +142,7 @@
     "autoClose180m": "180 min",
     "autoCloseOff": "Off",
     "deleteData": "Delete All Data",
-    "deleteDataDesc": "Permanently delete all notes and categories",
+    "deleteDataDesc": "Permanently delete settings, models, notes, and AI login sessions on this device",
     "deleteDataConfirm": "This will permanently delete ALL your data. Type DELETE to confirm.",
     "securityInfo": "Your data is stored locally on your device only."
   }

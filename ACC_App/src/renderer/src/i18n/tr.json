@@ -142,7 +142,7 @@
     "autoClose180m": "180 dk",
     "autoCloseOff": "Kapalı",
     "deleteData": "Tüm Verileri Sil",
-    "deleteDataDesc": "Tüm notları ve kategorileri kalıcı olarak sil",
+    "deleteDataDesc": "Ayarlar, modeller, notlar ve AI oturumları (çerezler) bu cihazdan kalıcı olarak silinir",
     "deleteDataConfirm": "Tüm verileriniz kalıcı olarak silinecek. Onaylamak için SİL yazın.",
     "securityInfo": "Verileriniz yalnızca cihazınızda yerel olarak saklanır."
   }
